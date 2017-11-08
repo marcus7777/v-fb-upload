@@ -1,0 +1,34 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer.html">
+<!--
+  `<file-upload></file-upload>` upload files to firebase
+  @demo demo.html
+-->
+<dom-module id="file-upload">
+  <template>
+    <style>:host {display:inline-block;color:#666}</style>
+    <h2>Demo</h2>
+    <input type="file" id="files" name="files[]" multiple />
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: "file-upload",
+    ready: function(undefined){
+      function handleFileSelect(evt) {
+        var files = evt.target.files
+        for (var i = 0, f; f = files[i]; i++) {
+          firebase.storage().ref().child(f.name).put(f).then(function(snapshot) {
+            console.log('Uploaded a blob or file!', snapshot)
+          }).catch(function(e) {
+            if (e.code == "storage/unauthorized") {
+              alert("unauthorized upload")
+            }
+            console.log(e)
+          })
+        }
+      }
+      this.$$("#files").addEventListener('change', handleFileSelect, false)
+    },
+  })
+</script>
