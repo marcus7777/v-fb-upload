@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../polymer/polymer.html">
 <!--
   `<file-upload></file-upload>` upload files to firebase
   @demo demo.html
@@ -14,11 +13,13 @@
 <script>
   Polymer({
     is: "file-upload",
-    ready: function(undefined){
+    ready: function(){
+      var that = this
       function handleFileSelect(evt) {
         var files = evt.target.files
+        var uid = that.uid || "anyone"
         for (var i = 0, f; f = files[i]; i++) {
-          firebase.storage().ref().child(f.name).put(f).then(function(snapshot) {
+          firebase.storage().ref().child(uid + "/" + f.name).put(f).then(function(snapshot) {
             console.log('Uploaded a blob or file!', snapshot)
           }).catch(function(e) {
             if (e.code == "storage/unauthorized") {
