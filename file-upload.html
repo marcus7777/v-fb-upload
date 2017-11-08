@@ -14,6 +14,12 @@
 <script>
   Polymer({
     is: "file-upload",
+    properties:{
+      url:{
+        type:String,
+        notify:true,
+      },
+    },
     ready: function(){
       var that = this
       function handleFileSelect(evt) {
@@ -21,6 +27,7 @@
         var uid = that.uid || "anyone"
         for (var i = 0, f; f = files[i]; i++) {
           firebase.storage().ref().child(uid + "/" + f.name).put(f).then(function(snapshot) {
+            this.url = snapshot.downloadURL
             console.log('Uploaded a blob or file!', snapshot)
           }).catch(function(e) {
             if (e.code == "storage/unauthorized") {
