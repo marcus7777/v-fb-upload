@@ -27,7 +27,6 @@
       var that = this
       function handleFileSelect(evt) {
         var files = evt.target.files
-        var uid = that.uid
         for (var i = 0, f; f = files[i]; i++) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
@@ -36,6 +35,7 @@
           var chunks = Math.ceil(file.size / chunkSize)
           var currentChunk = 0
           var spark = new SparkMD5.ArrayBuffer()
+          var uid = that.uid
           
           function loadNext() {
             var start = currentChunk * chunkSize
