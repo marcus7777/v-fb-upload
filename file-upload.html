@@ -45,16 +45,19 @@
           
           function upload() {
             var toUploadto = firebase.storage().ref().child(spark.end() + "/" + uid + "/" + theFile.name)
-            
-            toUploadto.put(theFile).then(function(snapshot) {
-              this.url = snapshot.downloadURL
-              console.log('Uploaded a blob or file!', snapshot)
-            }).catch(function(e) {
-              if (e.code == "storage/unauthorized") {
-                alert("unauthorized upload")
-              }
-              console.log(e)
-            })
+            if (toUploadto.downloadURL) {
+              that.set("url", toUploadto.downloadURL) //uploaded
+            } else {
+              toUploadto.put(theFile).then(function(snapshot) { //upload
+                that.set("url", snapshot.downloadURL) //uploaded
+                console.log('Uploaded a blob or file!', snapshot)
+              }).catch(function(e) {
+                if (e.code == "storage/unauthorized") {
+                  alert("unauthorized upload")
+                }
+                console.log(e)
+              })
+            }
           }
           
           fileReader.onload = function (e) {
