@@ -41,11 +41,11 @@
           }
           
           function upload(hash, x) {
-            var toUploadto = firebase.storage().ref().child(hash + "/" + uid + "/" + files[x].name)
+            var toUploadto = firebase.storage().ref().child(hash + "/" + uid + "/" + files[x()].name)
             toUploadto.getDownloadURL().then( function (url) {
               that.set("url", url) //uploaded
             }).catch(function () {
-              toUploadto.put(files[x]).then(function(snapshot) { //upload
+              toUploadto.put(files[x()]).then(function(snapshot) { //upload
                 that.set("url", snapshot.downloadURL) //uploaded
                 console.log('Uploaded a blob or file!', snapshot)
               }).catch(function(e) {
