@@ -43,7 +43,7 @@
             fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
           }
           
-          function upload() { 
+          function upload(uid, f) {
             firebase.storage().ref().child(spark.end() + "/" + uid + "/" + f.name).put(f).then(function(snapshot) {
               this.url = snapshot.downloadURL
               console.log('Uploaded a blob or file!', snapshot)
@@ -61,12 +61,12 @@
             if (currentChunk < chunks) {
               loadNext()
             } else {
-              upload()
+              upload(uid, f)
             }
           }
           
           if (that.noMD5) {
-            upload()
+            upload(uid, f)
           } else {
             loadNext()
           }
