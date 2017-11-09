@@ -40,12 +40,12 @@
             fileReader.readAsArrayBuffer(blobSlice.call(files[n], start, end))
           }
           
-          function upload(hash, x) {
-            var toUploadto = firebase.storage().ref().child(hash + "/" + uid + "/" + files[x()].name)
+          function upload(id) {
+            var toUploadto = firebase.storage().ref().child(id.hash + "/" + uid + "/" + files[id.n].name)
             toUploadto.getDownloadURL().then( function (url) {
               that.set("url", url) //uploaded
             }).catch(function () {
-              toUploadto.put(files[x()]).then(function(snapshot) { //upload
+              toUploadto.put(files[id.n]).then(function(snapshot) { //upload
                 that.set("url", snapshot.downloadURL) //uploaded
                 console.log('Uploaded a blob or file!', snapshot)
               }).catch(function(e) {
@@ -63,10 +63,7 @@
             if (currentChunk < chunks) {
               loadNext()
             } else {
-              upload(spark[n].end(), function () {
-                var x = +n
-                return x 
-              })
+              upload({hash: spark[n].end(),n: +n})
             }
           }
           
