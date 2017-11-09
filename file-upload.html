@@ -23,7 +23,7 @@
       var that = this
       function handleFileSelect(evt) {
         var files = evt.target.files
-        files.forEach(function(fileN) {
+        Array.prototype.forEach.call(files, function(fileN) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
           var chunkSize = 2097152
