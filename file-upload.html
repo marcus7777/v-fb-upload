@@ -27,10 +27,9 @@
       var that = this
       function handleFileSelect(evt) {
         var files = evt.target.files
-        for (var i = 0, f; f = files[i]; i++) {
+        for (var i = 0, file; file = files[i]; i++) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
-          var file = f
           var chunkSize = 2097152
           var chunks = Math.ceil(file.size / chunkSize)
           var currentChunk = 0
@@ -43,8 +42,8 @@
             fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
           }
           
-          function upload(uid, f) {
-            firebase.storage().ref().child(spark.end() + "/" + uid + "/" + f.name).put(f).then(function(snapshot) {
+          function upload() {
+            firebase.storage().ref().child(spark.end() + "/" + uid + "/" + file.name).put(file).then(function(snapshot) {
               this.url = snapshot.downloadURL
               console.log('Uploaded a blob or file!', snapshot)
             }).catch(function(e) {
@@ -61,12 +60,12 @@
             if (currentChunk < chunks) {
               loadNext()
             } else {
-              upload(uid, f)
+              upload()
             }
           }
           
           if (that.noMD5) {
-            upload(uid, f)
+            upload()
           } else {
             loadNext()
           }
