@@ -29,7 +29,7 @@
           var chunks = Math.ceil(fileN.size / chunkSize)
           var currentChunk = 0
           var spark = new SparkMD5.ArrayBuffer()
-          var uid = that.uid || "anyone"
+          var uid = that.uid || firebase.auth().currentUser.uid || "anyone"
           
           function loadNext() {
             var start = currentChunk * chunkSize
