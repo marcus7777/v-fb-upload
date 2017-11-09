@@ -8,7 +8,8 @@
     "web-components"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#~1.9.3"
+    "polymer": "Polymer/polymer#~1.9.3",
+    "js-spark-md5": "satazor/js-spark-md5"
   },
   "devDependencies": {
     "iron-test-helpers": "*",
