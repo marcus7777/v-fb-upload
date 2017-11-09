@@ -45,9 +45,9 @@
           
           function upload() {
             var toUploadto = firebase.storage().ref().child(spark.end() + "/" + uid + "/" + theFile.name)
-            if (toUploadto.getDownloadURL()) {
-              that.set("url", toUploadto.downloadURL) //uploaded
-            } else {
+            toUploadto.getDownloadURL().then( function (snapshot) {
+              that.set("url", snapshot.downloadURL) //uploaded
+            }).catch(function () {
               toUploadto.put(theFile).then(function(snapshot) { //upload
                 that.set("url", snapshot.downloadURL) //uploaded
                 console.log('Uploaded a blob or file!', snapshot)
@@ -57,7 +57,7 @@
                 }
                 console.log(e)
               })
-            }
+            })
           }
           
           fileReader.onload = function (e) {
