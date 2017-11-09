@@ -34,7 +34,7 @@
           var chunks = Math.ceil(file.size / chunkSize)
           var currentChunk = 0
           var spark = new SparkMD5.ArrayBuffer()
-          var uid = that.uid
+          var uid = that.uid || "anyone"
           var theFile = file
           
           function loadNext() {
@@ -44,7 +44,9 @@
           }
           
           function upload() {
-            firebase.storage().ref().child(spark.end() + "/" + uid + "/" + theFile.name).put(theFile).then(function(snapshot) {
+            var toUploadto = firebase.storage().ref().child(spark.end() + "/" + uid + "/" + theFile.name)
+            
+            toUploadto.put(theFile).then(function(snapshot) {
               this.url = snapshot.downloadURL
               console.log('Uploaded a blob or file!', snapshot)
             }).catch(function(e) {
