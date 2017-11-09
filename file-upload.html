@@ -38,7 +38,7 @@
           }
           
           function upload(hash) {
-            var toUploadto = firebase.storage().ref().child(hash + "/" + uid + "/" + fileN.name)
+            var toUploadto = firebase.storage().ref().child(uid + "/" + hash + "/" + fileN.name)
             toUploadto.getDownloadURL().then( function (url) {
               that.set("url", url) //uploaded
             }).catch(function () {
