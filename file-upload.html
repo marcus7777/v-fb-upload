@@ -23,29 +23,27 @@
       var that = this
       function handleFileSelect(evt) {
         var files = evt.target.files
-        for (var i = 0; i < files.length; i++) {
+        files.forEach(function(fileN) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
           var chunkSize = 2097152
-          var chunks = Math.ceil(files[i].size / chunkSize)
+          var chunks = Math.ceil(fileN.size / chunkSize)
           var currentChunk = 0
-          var spark = {}
-          var n = +i
-          spark[n] = new SparkMD5.ArrayBuffer()
+          var spark = new SparkMD5.ArrayBuffer()
           var uid = that.uid || "anyone"
           
           function loadNext() {
             var start = currentChunk * chunkSize
-            var end = start + chunkSize >= files[n].size ? files[n].size : start + chunkSize
-            fileReader.readAsArrayBuffer(blobSlice.call(files[n], start, end))
+            var end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
+            fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
           }
           
-          function upload(id) {
-            var toUploadto = firebase.storage().ref().child(id.hash + "/" + uid + "/" + files[id.n].name)
+          function upload(hash) {
+            var toUploadto = firebase.storage().ref().child(hash + "/" + uid + "/" + fileN.name)
             toUploadto.getDownloadURL().then( function (url) {
               that.set("url", url) //uploaded
             }).catch(function () {
-              toUploadto.put(files[id.n]).then(function(snapshot) { //upload
+              toUploadto.put(fileN).then(function(snapshot) { //upload
                 that.set("url", snapshot.downloadURL) //uploaded
                 console.log('Uploaded a blob or file!', snapshot)
               }).catch(function(e) {
@@ -58,12 +56,12 @@
           }
           
           fileReader.onload = function (e) {
-            spark[n].append(e.target.result)
+            spark.append(e.target.result)
             currentChunk += 1
             if (currentChunk < chunks) {
               loadNext()
             } else {
-              upload({hash: spark[n].end(),n: 0+n})
+              upload(spark.end())
             }
           }
           
