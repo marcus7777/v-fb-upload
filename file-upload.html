@@ -43,7 +43,8 @@
           }
           
           function upload() {
-            firebase.storage().ref().child(spark.end() + "/" + uid + "/" + file.name).put(file).then(function(snapshot) {
+            var theFile = file
+            firebase.storage().ref().child(spark.end() + "/" + uid + "/" + theFile.name).put(theFile).then(function(snapshot) {
               this.url = snapshot.downloadURL
               console.log('Uploaded a blob or file!', snapshot)
             }).catch(function(e) {
