@@ -39,8 +39,8 @@
           
           function loadNext() {
             var start = currentChunk * chunkSize
-            var end = start + chunkSize >= file.size ? file.size : start + chunkSize
-            fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
+            var end = start + chunkSize >= theFile.size ? theFile.size : start + chunkSize
+            fileReader.readAsArrayBuffer(blobSlice.call(theFile, start, end))
           }
           
           function upload(hash) {
