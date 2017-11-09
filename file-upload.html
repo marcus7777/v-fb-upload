@@ -30,7 +30,7 @@
           var chunks = Math.ceil(files[i].size / chunkSize)
           var currentChunk = 0
           var spark = {}
-          var n = i
+          var n = +i
           spark[n] = new SparkMD5.ArrayBuffer()
           var uid = that.uid || "anyone"
           
@@ -63,7 +63,7 @@
             if (currentChunk < chunks) {
               loadNext()
             } else {
-              upload(spark[n].end(), n)
+              upload(spark[n].end(), +n)
             }
           }
           
