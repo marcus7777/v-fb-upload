@@ -63,7 +63,10 @@
             if (currentChunk < chunks) {
               loadNext()
             } else {
-              upload(spark[n].end(), +n)
+              upload(spark[n].end(), function () {
+                var x = +n
+                return x 
+              })
             }
           }
           
