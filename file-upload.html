@@ -21,7 +21,6 @@
         type:String,
         notify:true,
       },
-      
     },
     ready: function(){
       var that = this
@@ -33,7 +32,9 @@
           var chunkSize = 2097152
           var chunks = Math.ceil(file.size / chunkSize)
           var currentChunk = 0
-          var spark = new SparkMD5.ArrayBuffer()
+          var spark = {}
+          var n = i
+          spark[n] = new SparkMD5.ArrayBuffer()
           var uid = that.uid || "anyone"
           var theFile = file
           
@@ -61,12 +62,12 @@
           }
           
           fileReader.onload = function (e) {
-            spark.append(e.target.result)
+            spark[n].append(e.target.result)
             currentChunk += 1
             if (currentChunk < chunks) {
               loadNext()
             } else {
-              upload(spark.end())
+              upload(spark[n].end())
             }
           }
           
