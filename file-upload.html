@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<script src="../js-spark-md5/js-spark-md5.min.js" type="text/javascript"></script>
+
 <!--
   `<file-upload></file-upload>` upload files to firebase
   @demo demo.html
@@ -19,22 +21,55 @@
         type:String,
         notify:true,
       },
+      
     },
     ready: function(){
       var that = this
       function handleFileSelect(evt) {
         var files = evt.target.files
-        var uid = that.uid || "anyone"
+        var uid = that.uid
         for (var i = 0, f; f = files[i]; i++) {
-          firebase.storage().ref().child(uid + "/" + f.name).put(f).then(function(snapshot) {
-            this.url = snapshot.downloadURL
-            console.log('Uploaded a blob or file!', snapshot)
-          }).catch(function(e) {
-            if (e.code == "storage/unauthorized") {
-              alert("unauthorized upload")
+          var fileReader = new FileReader()
+          var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
+          var file = f
+          var chunkSize = 2097152
+          var chunks = Math.ceil(file.size / chunkSize)
+          var currentChunk = 0
+          var spark = new SparkMD5.ArrayBuffer()
+          
+          function loadNext() {
+            var start = currentChunk * chunkSize
+            var end = start + chunkSize >= file.size ? file.size : start + chunkSize
+            fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
+          }
+          
+          function upload() { 
+            firebase.storage().ref().child(spark.end() + "/" + uid + "/" + f.name).put(f).then(function(snapshot) {
+              this.url = snapshot.downloadURL
+              console.log('Uploaded a blob or file!', snapshot)
+            }).catch(function(e) {
+              if (e.code == "storage/unauthorized") {
+                alert("unauthorized upload")
+              }
+              console.log(e)
+            })
+          }
+          
+          fileReader.onload = function (e) {
+            spark.append(e.target.result)
+            currentChunk += 1
+            if (currentChunk < chunks) {
+              loadNext()
+            } else {
+              upload()
             }
-            console.log(e)
-          })
+          }
+          
+          if (that.noMD5) {
+            upload()
+          } else {
+            loadNext()
+          }
         }
       }
       this.$$("#files").addEventListener('change', handleFileSelect, false)
