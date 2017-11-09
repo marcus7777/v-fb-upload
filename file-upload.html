@@ -45,8 +45,8 @@
           
           function upload() {
             var toUploadto = firebase.storage().ref().child(spark.end() + "/" + uid + "/" + theFile.name)
-            toUploadto.getDownloadURL().then( function (snapshot) {
-              that.set("url", snapshot.downloadURL) //uploaded
+            toUploadto.getDownloadURL().then( function (url) {
+              that.set("url", url) //uploaded
             }).catch(function () {
               toUploadto.put(theFile).then(function(snapshot) { //upload
                 that.set("url", snapshot.downloadURL) //uploaded
