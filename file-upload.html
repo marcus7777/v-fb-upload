@@ -42,7 +42,9 @@
             toUploadto.getDownloadURL().then( function (url) {
               that.set("url", url) //uploaded
             }).catch(function () {
-              toUploadto.put(fileN).then(function(snapshot) { //upload
+              var meta = {}
+              meta[uid] = {read:true,write:true}
+              toUploadto.put(fileN, meta).then(function(snapshot) { //upload
                 that.set("url", snapshot.downloadURL) //uploaded
                 console.log('Uploaded a blob or file!', snapshot)
               }).catch(function(e) {
