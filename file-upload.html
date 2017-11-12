@@ -43,7 +43,7 @@
               that.set("url", url) //uploaded
             }).catch(function () {
               var meta = {}
-              meta[uid] = {read:true,write:true}
+              meta[uid] = "rw"
               toUploadto.put(fileN, meta).then(function(snapshot) { //upload
                 that.set("url", snapshot.downloadURL) //uploaded
                 console.log('Uploaded a blob or file!', snapshot)
