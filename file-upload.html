@@ -51,7 +51,6 @@
                 that.push("files", {name: fileN.name, url: snapshot.downloadURL}) //uploaded show
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
                 console.log('Uploaded a blob or file!', snapshot)
-                evt.target.files = []
               }).catch(function(e) {
                 if (e.code == "storage/unauthorized") {
                   alert("unauthorized upload")
