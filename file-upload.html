@@ -48,7 +48,7 @@
               meta[uid] = "rw"
               console.log(meta)
               toUploadto.put(fileN, meta).then(function(snapshot) { //upload
-                that.push("files", {name: fileN.name, url: url}) //uploaded show
+                that.push("files", {name: fileN.name, url: snapshot.downloadURL}) //uploaded show
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
                 console.log('Uploaded a blob or file!', snapshot)
                 evt.target.files = []
