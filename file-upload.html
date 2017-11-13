@@ -13,10 +13,11 @@
 <script>
   Polymer({
     is: "file-upload",
-    properties:{
-      url:{
-        type:String,
+    properties
+      files:{
+        type: Array,
         notify:true,
+        value: [],
       },
     },
     ready: function(){
@@ -41,7 +42,7 @@
             var toUploadto = firebase.storage().ref().child(uid + "/" + hash + "/" + fileN.name)
             
             toUploadto.getDownloadURL().then( function (url) {
-              that.set("url", url) //uploaded
+              that.push("files", {name: fileN.name, url: url}) //uploaded
             }).catch(function () {
               var meta = {}
               meta[uid] = "rw"
