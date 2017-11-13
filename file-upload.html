@@ -77,6 +77,7 @@
             loadNext()
           }
         })
+        evt.target.removeAttribute('value')
       }
       this.$$("#files").addEventListener('change', handleFileSelect, false)
     },
