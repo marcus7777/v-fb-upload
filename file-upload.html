@@ -7,7 +7,7 @@
 -->
 <dom-module id="file-upload">
   <template>
-    <input type="file" id="files" name="files[]" multiple />
+    <input type="file" id="files" accept="[[accept]]" name="files[]" multiple />
     <template is="dom-if" if="[[uploading]]">
       uploading ... [[uploading]]
     </template>
@@ -30,6 +30,9 @@
       },
       uploading: {
         value: 0
+      },
+      accept: {
+        value: "*"
       },
     },
     ready: function(){
@@ -62,10 +65,11 @@
               meta[uid] = "owner"
               console.log(meta)
               toUploadto.put(fileN, meta).then(function(snapshot) { //upload
-                that.push("files", {name: fileN.name, url: snapshot.downloadURL}) //uploaded show
+                that.push("files", {name: fileN.name, url: snapshot.downloadURL, type: snapshot.contentType}) //uploaded show
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
                 if (db && that.logUpload && hash) {
                   meta.path = uid + "/" + hash + "/" + fileN.name
+                  meta.type = snapshot.contentType
                   db.collection("files").doc(hash).set(meta, {merge: true})
                 }
                 console.log('Uploaded a blob or file!', snapshot)
