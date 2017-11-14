@@ -25,6 +25,8 @@
     },
     ready: function(){
       var that = this
+      var db = firebase.firestore()
+      var uid = that.uid || firebase.auth().currentUser.uid || "anyone"
       function handleFileSelect(evt) {
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
           var fileReader = new FileReader()
@@ -33,7 +35,6 @@
           var chunks = Math.ceil(fileN.size / chunkSize)
           var currentChunk = 0
           var spark = new SparkMD5.ArrayBuffer()
-          var uid = that.uid || firebase.auth().currentUser.uid || "anyone"
           
           function loadNext() {
             var start = currentChunk * chunkSize
@@ -54,7 +55,7 @@
                 that.push("files", {name: fileN.name, url: snapshot.downloadURL}) //uploaded show
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
                 if (that.logUpload && hash) {
-                  firebase.firestore().collection("files").doc(hash).set({
+                  db.collection("files").doc(hash).set({
                     uid: uid,
                     path: uid + "/" + hash + "/" + fileN.name
                   })
