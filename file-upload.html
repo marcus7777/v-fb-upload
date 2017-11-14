@@ -25,10 +25,9 @@
     },
     ready: function(){
       var that = this
-      var uid = that.uid || firebase.auth().currentUser.uid || "anyone"
-      var db = firebase.firestore()
-      
       function handleFileSelect(evt) {
+        var uid = that.uid || firebase.auth().currentUser.uid || "anyone"
+        var db = firebase.firestore()
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
