@@ -55,10 +55,11 @@
                 that.push("files", {name: fileN.name, url: snapshot.downloadURL}) //uploaded show
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
                 if (db && that.logUpload && hash) {
-                  db.collection("files").doc(hash).set({
-                    uid: uid,
-                    path: uid + "/" + hash + "/" + fileN.name
-                  })
+                  var fileLog = {
+                    path: uid + "/" + hash + "/" + fileN.name,
+                  }
+                  fileLog[uid] = "owner"
+                  db.collection("files").doc(hash).set(fileLog)
                 }
                 console.log('Uploaded a blob or file!', snapshot)
               }).catch(function(e) {
