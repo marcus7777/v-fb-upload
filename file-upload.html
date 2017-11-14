@@ -8,6 +8,9 @@
 <dom-module id="file-upload">
   <template>
     <input type="file" id="files" name="files[]" multiple />
+    <template is="dom-if" if="[[uploading]]">
+      uploading
+    </template>
   </template>
 </dom-module>
 <script>
@@ -24,6 +27,9 @@
       },
       meta: {
         value: {}
+      },
+      uploading: {
+        value: 0
       },
     },
     ready: function(){
@@ -51,6 +57,7 @@
             toUploadto.getDownloadURL().then( function (url) {
               that.push("files", {name: fileN.name, url: url}) //uploaded show
             }).catch(function () {
+              that.set("uploading", that.uploading + 1)
               var meta = this.meta
               meta[uid] = "owner"
               console.log(meta)
@@ -62,11 +69,13 @@
                   db.collection("files").doc(hash).set(meta)
                 }
                 console.log('Uploaded a blob or file!', snapshot)
+                that.set("uploading", that.uploading - 1)
               }).catch(function(e) {
                 if (e.code == "storage/unauthorized") {
                   alert("unauthorized upload")
                 }
                 console.log(e)
+                that.set("uploading", that.uploading - 1)
               })
             })
           }
