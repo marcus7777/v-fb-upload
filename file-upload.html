@@ -63,7 +63,6 @@
               that.set("uploading", that.uploading + 1)
               var meta = Object.assign({}, that.meta)
               meta[uid] = "owner"
-              console.log(meta)
               toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
                 that.push("files", {name: fileN.name, url: snapshot.downloadURL, type: snapshot.contentType}) //uploaded show
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
@@ -72,12 +71,8 @@
                   meta.type = snapshot.metadata.contentType
                   db.collection("files").doc(hash).set(meta, {merge: true})
                 }
-                console.log('Uploaded a blob or file!', snapshot)
                 that.set("uploading", that.uploading - 1)
               }).catch(function(e) {
-                if (e.code == "storage/unauthorized") {
-                  alert("unauthorized upload")
-                }
                 console.log(e)
                 that.set("uploading", that.uploading - 1)
               })
