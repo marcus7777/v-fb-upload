@@ -69,7 +69,7 @@
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
                 if (db && that.logUpload && hash) {
                   meta.path = uid + "/" + hash + "/" + fileN.name
-                  meta.type = snapshot.contentType
+                  meta.type = snapshot.metadata.contentType
                   db.collection("files").doc(hash).set(meta, {merge: true})
                 }
                 console.log('Uploaded a blob or file!', snapshot)
