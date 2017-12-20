@@ -60,6 +60,13 @@
             
             toUploadto.getDownloadURL().then( function (url) {
               that.push("files", {name: fileN.name, url: url}) //uploaded show
+              var meta = Object.assign({}, that.meta)
+              meta[uid] = "userId"
+              if (db && that.logUpload && hash) {
+                meta.path = uid + "/" + hash + "/" + fileN.name
+                meta.type = snapshot.metadata.contentType
+                db.collection("files").doc(hash).set(meta, {merge: true})
+              }
             }).catch(function () {
               that.set("uploading", that.uploading + 1)
               var meta = Object.assign({}, that.meta)
