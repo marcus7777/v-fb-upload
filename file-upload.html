@@ -63,7 +63,7 @@
             }).catch(function () {
               that.set("uploading", that.uploading + 1)
               var meta = Object.assign({}, that.meta)
-              meta[uid] = "owner"
+              meta[uid] = "userId"
               toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
                 that.push("files", {name: fileN.name, url: snapshot.downloadURL, type: snapshot.contentType}) //uploaded show
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
