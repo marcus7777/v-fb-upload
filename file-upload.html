@@ -72,8 +72,8 @@
               var meta = Object.assign({}, that.meta)
               meta[uid] = "userId"
               toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
-                var add  = {name: fileN.name, url: snapshot.downloadURL, type: snapshot.contentType}
-                if (snapshot.contentType.indexOf("image")) {
+                var add  = {name: fileN.name, url: snapshot.downloadURL, type: snapshot.metadata.contentType}
+                if (snapshot.metadata.contentType.indexOf("image")) {
                   add.image = snapshot.downloadURL
                 }
                 that.push("files", add) //uploaded show
