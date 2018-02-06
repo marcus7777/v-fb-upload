@@ -66,7 +66,13 @@
             //  if (url.metadata.contentType.indexOf("image") !== -1) {
             //    add.image = url.downloadURL
             //  }
-                that.push("files", {name: fileN.name, url: url, image:url }) //uploaded show
+                
+                var add  = {name: fileN.name, url: url, type: metadata.contentType}
+                if (metadata.contentType.indexOf("image") !== -1) {
+                  add.image = url
+                }
+                
+                that.push("files", add) //uploaded show
                 var meta = Object.assign({}, that.meta)
                 meta[uid] = "userId"
                 if (db && that.logUpload && hash) {
