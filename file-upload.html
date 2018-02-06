@@ -59,7 +59,11 @@
             var toUploadto = firebase.storage().ref().child(uid + "/" + hash + "/" + fileN.name)
             
             toUploadto.getDownloadURL().then( function (url) {
-              that.push("files", {name: fileN.name, url: url}) //uploaded show
+            //  var add  = {name: fileN.name, url: url.downloadURL, type: url.metadata.contentType}
+            //  if (url.metadata.contentType.indexOf("image") !== -1) {
+            //    add.image = url.downloadURL
+            //  }
+              that.push("files", {name: fileN.name, url: url, image:url }) //uploaded show
               var meta = Object.assign({}, that.meta)
               meta[uid] = "userId"
               if (db && that.logUpload && hash) {
@@ -73,7 +77,7 @@
               meta[uid] = "userId"
               toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
                 var add  = {name: fileN.name, url: snapshot.downloadURL, type: snapshot.metadata.contentType}
-                if (snapshot.metadata.contentType.indexOf("image")) {
+                if (snapshot.metadata.contentType.indexOf("image") !== -1) {
                   add.image = snapshot.downloadURL
                 }
                 that.push("files", add) //uploaded show
