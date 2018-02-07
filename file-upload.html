@@ -59,7 +59,7 @@
       })
       if (added) {
         this.timeout = setTimeout(function(){ 
-          that.set("files",files.map(function (file) {
+          that.set("files",that.files.map(function (file) {
             return file
           }))
         }, 1000)
