@@ -47,7 +47,12 @@
           file.name = file.ref.split("/").slice(-1)[0]
           firebase.storage().ref().child(file.ref).getDownloadURL().then( function (url) {
             file.url = url
-            that.set(["files",index],file)
+            firebase.storage().ref().getMetadata(file.ref).then(function (metadata) {
+              if (metadata.contentType.indexOf("image") !== -1) {
+                file.image = url
+              }
+              that.set(["files",index],file)
+            })
           })
         }
       })
