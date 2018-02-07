@@ -41,18 +41,16 @@
     },
     addMeta: function(files) {
       var added = false
-      var index
       var that = this
-      for (index = 0; index < files.length; ++index) {
-        if (files[index].ref && !files[index].name) {
-          files[index].name = files[index].ref.split("/").slice(-1)[0]
-          firebase.storage().ref().child(files[index].ref).getDownloadURL().then( function (url) {
-            files[index].url = url
-            that.set(["files",index],files[index])
+      files.forEach(function(file,index){
+        if (file.ref && !file.name) {
+          file.name = file.ref.split("/").slice(-1)[0]
+          firebase.storage().ref().child(file.ref).getDownloadURL().then( function (url) {
+            file.url = url
+            that.set(["files",index],file)
           })
         }
-        console.log(files[index])
-      }
+      })
     },
     ready: function(){
       var that = this
