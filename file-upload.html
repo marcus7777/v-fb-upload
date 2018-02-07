@@ -58,9 +58,11 @@
         }
       })
       if (added) {
-        that.set("files",files.map(function (file) {
-          return file
-        }))
+        this.timeout = setTimeout(function(){ 
+          that.set("files",files.map(function (file) {
+            return file
+          }))
+        }, 1000)
       }
     },
     ready: function(){
