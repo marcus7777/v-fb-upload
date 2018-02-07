@@ -40,11 +40,9 @@
       },
     },
     addMeta: function(files) {
-      var added = false
       var that = this
       files.forEach(function(file,index){
         if (file.ref && !file.name) {
-          added = true
           file.name = file.ref.split("/").slice(-1)[0]
           firebase.storage().ref().child(file.ref).getDownloadURL().then( function (url) {
             file.url = url
@@ -53,17 +51,16 @@
                 file.image = url
               }
               that.set(["files",index],file)
+              clearTimeout(that.timeout)
+              that.timeout = setTimeout(function(){ 
+                that.set("files",that.files.map(function (file) {
+                  return file
+                }))
+              }, 1000)
             })
           })
         }
       })
-      if (added) {
-        this.timeout = setTimeout(function(){ 
-          that.set("files",that.files.map(function (file) {
-            return file
-          }))
-        }, 1000)
-      }
     },
     ready: function(){
       var that = this
