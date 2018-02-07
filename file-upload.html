@@ -54,7 +54,10 @@
               clearTimeout(that.timeout)
               that.timeout = setTimeout(function(){
                 var dedup = {} 
-                that.files.forEach(function (file) { 
+                that.files.forEach(function (file) {
+                  if (!dedup[file.name]) {
+                    dedup[file.name] = {}
+                  }
                   Object.assign(dedup[file.name], file)
                 })
                 that.set("files",Object.keys(dedup).map(function (name) { 
