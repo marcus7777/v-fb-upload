@@ -1,28 +1,26 @@
 <link rel="import" href="../polymer/polymer.html">
-<script src="../js-spark-md5/spark-md5.min.js" type="text/javascript"></script>
+<script src="..//spark-md5.min.js" type="text/javascript"></script>
 
 <!--
   `<file-upload></file-upload>` upload files to firebase
   @demo demo.html
 -->
-<dom-module id="file-upload">
-  <template>
-    <input type="file" id="files" accept="[[accept]]" name="files[]" multiple />
-    <template is="dom-if" if="[[uploading]]">
-      ... [[uploading]]
-    </template>
-  </template>
-</dom-module>
+<template>
+  <input type="file" id="files" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
+  <span v-if="{{uploading}}">
+    ... {{uploading}}
+  </span>
+</template>
 <script>
-  Polymer({
-    is: "file-upload",
-    properties:{
-      files:{
+  import SparkMD5 from "js-spark-md5"
+  
+  export default {
+    prop:{
+      input:{
         type: Array,
-        notify:true,
         value: [],
       },
-      logUpload: {
+      log: {
         value: true,
       },
       meta: {
@@ -35,44 +33,48 @@
       accept: {
         value: "*"
       },
-      _addMeta:{
-        computed: "addMeta(files)", 
+    },
+    computed: {
+      _addMeta() {
+        return this.addMeta(this.input)
+      }
+    },
+    methods:{
+      addMeta(files) {
+        var that = this
+        files.forEach(function(file,index){
+          if (file.ref && !file.name) {
+            file.name = file.ref.split("/").slice(-1)[0]
+            firebase.storage().ref().child(file.ref).getDownloadURL().then( function (url) {
+              file.url = url
+              firebase.storage().ref().child(file.ref).getMetadata().then(function (metadata) {
+                if (metadata.contentType.indexOf("image") !== -1) {
+                  file.image = url
+                }
+                that.input[index] = file
+                clearTimeout(that.timeout)
+                that.timeout = setTimeout(function(){
+                  var dedup = {} 
+                  that.files.forEach(function (file) {
+                    if (!dedup[file.name]) {
+                      dedup[file.name] = {}
+                    }
+                    Object.assign(dedup[file.name], file)
+                  })
+                  that.set("files",Object.keys(dedup).map(function (name) { 
+                    return dedup[name]
+                  }))
+                  that.set("files",that.files.map(function (file) {
+                    return file
+                  }))
+                }, 0)
+              })
+            })  
+          }
+        })
       },
     },
-    addMeta: function(files) {
-      var that = this
-      files.forEach(function(file,index){
-        if (file.ref && !file.name) {
-          file.name = file.ref.split("/").slice(-1)[0]
-          firebase.storage().ref().child(file.ref).getDownloadURL().then( function (url) {
-            file.url = url
-            firebase.storage().ref().child(file.ref).getMetadata().then(function (metadata) {
-              if (metadata.contentType.indexOf("image") !== -1) {
-                file.image = url
-              }
-              that.set(["files",index],file)
-              clearTimeout(that.timeout)
-              that.timeout = setTimeout(function(){
-                var dedup = {} 
-                that.files.forEach(function (file) {
-                  if (!dedup[file.name]) {
-                    dedup[file.name] = {}
-                  }
-                  Object.assign(dedup[file.name], file)
-                })
-                that.set("files",Object.keys(dedup).map(function (name) { 
-                  return dedup[name]
-                }))
-                that.set("files",that.files.map(function (file) {
-                  return file
-                }))
-              }, 0)
-            })
-          })
-        }
-      })
-    },
-    ready: function(){
+    mounted(){
       var that = this
       function handleFileSelect(evt) {
         var uid = that.uid || firebase.auth().currentUser.uid || "anyone"
@@ -145,10 +147,10 @@
                   meta.type = snapshot.metadata.contentType
                   db.collection("files").doc(hash).set(meta, {merge: true})
                 }
-                that.set("uploading", that.uploading - 1)
-              }).catch(function(e) {
+                that.uploading = that.uploading - 1
+             }).catch(function(e) {
                 console.log(e)
-                that.set("uploading", that.uploading - 1)
+                that.uploading = that.uploading - 1)
               })
             })
           }
@@ -172,7 +174,6 @@
         evt.target.removeAttribute('value')
         evt.target.value = ""
       }
-      this.$$("#files").addEventListener('change', handleFileSelect, false)
     },
   })
 </script>
