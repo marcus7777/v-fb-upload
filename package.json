@@ -1,0 +1,13 @@
+{
+  "name": "v-fb-upload",
+  "version": "1.0.0",
+  "description": "Upload files to firebase storage built-in vue",
+  "main": "index.vue",
+  "repository": "git@github.com:marcus7777/v-file-upload.git",
+  "author": "Marcus Hitchins <marcus@hhost.me>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "spark-md5": "^3.0.1"
+  }
+}

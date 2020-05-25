@@ -9,8 +9,8 @@
   </span>
 </template>
 <script>
-  import SparkMD5 from "js-spark-md5"
-  
+  import SparkMD5 from "spark-md5"
+
   export default {
     prop:{
       input:{
@@ -51,14 +51,14 @@
                 that.input[index] = file
                 clearTimeout(that.timeout)
                 that.timeout = setTimeout(function(){
-                  var dedup = {} 
+                  var dedup = {}
                   that.files.forEach(function (file) {
                     if (!dedup[file.name]) {
                       dedup[file.name] = {}
                     }
                     Object.assign(dedup[file.name], file)
                   })
-                  that.set("files",Object.keys(dedup).map(function (name) { 
+                  that.set("files",Object.keys(dedup).map(function (name) {
                     return dedup[name]
                   }))
                   that.set("files",that.files.map(function (file) {
@@ -66,7 +66,7 @@
                   }))
                 }, 0)
               })
-            })  
+            })
           }
         })
       },
@@ -83,34 +83,34 @@
           var chunks = Math.ceil(fileN.size / chunkSize)
           var currentChunk = 0
           var spark = new SparkMD5.ArrayBuffer()
-          
+
           function loadNext() {
             var start = currentChunk * chunkSize
             var end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
             fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
           }
-          
+
           function upload(hash) {
             var toUploadto = firebase.storage().ref().child(uid + "/" + hash + "/" + fileN.name)
-            
+
             toUploadto.getDownloadURL().then( function (url) {
               firebase.storage().ref().getMetadata(uid + "/" + hash + "/" + fileN.name).then(function(metadata) {
-                 
+
 
             //  var add  = {name: fileN.name, url: url.downloadURL, type: url.metadata.contentType}
             //  if (url.metadata.contentType.indexOf("image") !== -1) {
             //    add.image = url.downloadURL
             //  }
-                
+
                 var add  = {name: fileN.name, url: url, type: metadata.contentType}
                 if (metadata.contentType.indexOf("image") !== -1) {
                   add.image = url
                 }
-                var dedup = {} 
-                that.files.concat([add]).forEach(function (file) { 
+                var dedup = {}
+                that.files.concat([add]).forEach(function (file) {
                   dedup[file.name] = file
                 })
-                that.set("files",Object.keys(dedup).map(function (name) { 
+                that.set("files",Object.keys(dedup).map(function (name) {
                   return dedup[name]
                 }))
                 var meta = Object.assign({}, that.meta)
@@ -130,11 +130,11 @@
                 if (snapshot.metadata.contentType.indexOf("image") !== -1) {
                   add.image = snapshot.downloadURL
                 }
-                var dedup = {} 
-                that.files.concat([add]).forEach(function (file) { 
+                var dedup = {}
+                that.files.concat([add]).forEach(function (file) {
                   dedup[file.name] = file
                 })
-                that.set("files",Object.keys(dedup).map(function (name) { 
+                that.set("files",Object.keys(dedup).map(function (name) {
                   return dedup[name]
                 }))
 
@@ -151,7 +151,7 @@
               })
             })
           }
-          
+
           fileReader.onload = function (e) {
             spark.append(e.target.result)
             currentChunk += 1
@@ -161,7 +161,7 @@
               upload(spark.end())
             }
           }
-          
+
           if (that.noMD5) {
             upload("")
           } else {
