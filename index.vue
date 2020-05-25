@@ -1,10 +1,7 @@
-<link rel="import" href="../polymer/polymer.html">
-<script src="..//spark-md5.min.js" type="text/javascript"></script>
-
 <!--
-  `<file-upload></file-upload>` upload files to firebase
-  @demo demo.html
+  `<file-upload v-model="files" />` upload files to firebase
 -->
+
 <template>
   <input type="file" id="files" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
   <span v-if="{{uploading}}">
