@@ -80,23 +80,23 @@
 
         toUploadto.getDownloadURL().then( function (url) {
           firebase.storage().ref().getMetadata(uid + "/" + hash + "/" + fileN.name).then(function(metadata) {
-
+            console.log(metadata)
             //  var add  = {name: fileN.name, url: url.downloadURL, type: url.metadata.contentType}
             //  if (url.metadata.contentType.indexOf("image") !== -1) {
             //    add.image = url.downloadURL
             //  }
 
-            var add  = {name: fileN.name, url, type: metadata.contentType, fileAsStr}
+            var add  = {
+              name: fileN.name,
+              url,
+              type: metadata.contentType,
+              fileAsStr,
+              metadata.ref
+            }
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url
             }
-            var dedup = {}
-            that.files.concat([add]).forEach(function (file) {
-              dedup[file.name] = file
-            })
-            that.files = Object.keys(dedup).map(function (name) {
-              return dedup[name]
-            })
+            that.files.push(that.addMeta(add))
             var meta = Object.assign({}, that.meta)
             meta[uid] = "UserID"
             if (fs && hash) {
@@ -116,6 +116,7 @@
               url: snapshot.downloadURL,
               type: snapshot.metadata.contentType,
               ref: snapshot.ref,
+              fileAsStr,
             }
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
               add.image = snapshot.downloadURL
