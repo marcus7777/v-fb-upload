@@ -60,7 +60,7 @@
               let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
               fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
             } else {
-              that.upload(btoa(spark.end(true)),fileN,e.target.result)
+              that.upload(btoa(spark.end(true)),fileN)
             }
           }
           {
@@ -73,7 +73,7 @@
         evt.target.removeAttribute('value')
         evt.target.value = ""
       },
-      upload(hash, fileN, fileAsStr) {
+      upload(hash, fileN) {
         let that = this
         let uid = that.uid || auth().currentUser.uid || "anyone"
         var toUploadto = storage().ref().child(uid + "/" + hash + "/" + fileN.name)
