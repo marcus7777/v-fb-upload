@@ -98,7 +98,7 @@
               return dedup[name]
             })
             var meta = Object.assign({}, that.meta)
-            meta[uid] = true
+            meta[uid] = "UserID"
             if (fs && hash) {
               meta.path = uid + "/" + hash + "/" + fileN.name
               meta.type = metadata.contentType
@@ -109,19 +109,19 @@
           console.log(e)
           that.uploading += 1
           var meta = Object.assign({}, that.meta)
-          meta[uid] = true
+          meta[uid] = "UserID"
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
-            var add  = {name: fileN.name, url: snapshot.downloadURL, type: snapshot.metadata.contentType}
+            var add  = {
+              name: fileN.name,
+              url: snapshot.downloadURL,
+              type: snapshot.metadata.contentType
+              ref: snapshot.ref
+            }
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
               add.image = snapshot.downloadURL
             }
-            var dedup = {}
-            that.files.concat([add]).forEach(function (file) {
-              dedup[file.name] = file
-            })
-            that.files = Object.keys(dedup).map(function (name) {
-              return dedup[name]
-            })
+
+            that.files.push(that.addMeta(add))
 
             toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
             if (fs && hash) {
@@ -136,34 +136,21 @@
           })
         })
       },
-      addMeta(files) {
-        var that = this
-        files.forEach(function(file,index){
-          if (file.ref && !file.name) {
+      addMeta(file) {
+        if (file.ref) {
+          if (!file.name) {
             file.name = file.ref.split("/").slice(-1)[0]
-            storage().ref().child(file.ref).getDownloadURL().then( function (url) {
-              file.url = url
-              storage().ref().child(file.ref).getMetadata().then(function (metadata) {
-                if (metadata.contentType.indexOf("image") !== -1) {
-                  file.image = url
-                }
-                clearTimeout(that.timeout)
-                that.timeout = setTimeout(function(){
-                  var dedup = {}
-                  that.files.forEach(function (file) {
-                    if (!dedup[file.name]) {
-                      dedup[file.name] = {}
-                    }
-                    Object.assign(dedup[file.name], file)
-                  })
-                  that.files = Object.keys(dedup).map(function (name) {
-                    return dedup[name]
-                  })
-                }, 0)
-              })
-            })
           }
-        })
+          storage().ref().child(file.ref).getDownloadURL().then( function (url) {
+            file.url = url
+            storage().ref().child(file.ref).getMetadata().then(function (metadata) {
+              if (metadata.contentType.indexOf("image") !== -1) {
+                file.image = url
+              }
+            })
+          })
+        }
+        return file
       },
     },
   }
