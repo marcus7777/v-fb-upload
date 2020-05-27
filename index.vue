@@ -38,7 +38,7 @@
     }),
     watch:{
       files(val) {
-        this.$emit("input",addMeta(val))
+        this.$emit("input",val)
       },
     },
     methods:{
@@ -147,7 +147,6 @@
                 if (metadata.contentType.indexOf("image") !== -1) {
                   file.image = url
                 }
-                that.input[index] = file
                 clearTimeout(that.timeout)
                 that.timeout = setTimeout(function(){
                   var dedup = {}
@@ -159,9 +158,6 @@
                   })
                   that.files = Object.keys(dedup).map(function (name) {
                     return dedup[name]
-                  })
-                  that.files = that.files.map(function (file) {
-                    return file
                   })
                 }, 0)
               })
