@@ -61,7 +61,11 @@
               that.upload(spark.end(),fileN,e.target.result)
             }
           }
-          fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
+          {
+            let start = currentChunk * chunkSize
+            let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
+            fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
+          }
         })
 
         evt.target.removeAttribute('value')
