@@ -140,9 +140,9 @@
       },
       async addMeta(file) {
         if (file.ref) {
-          return await storage().ref().child(file.ref.fullPath).getDownloadURL().then( function (url) {
+          return await storage().ref().child(file.ref.fullPath).getDownloadURL().then(async function (url) {
             file.url = url
-            return storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
+            return await storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
               if (metadata.contentType.indexOf("image") !== -1) {
                 file.image = url
               }
