@@ -98,10 +98,7 @@
               return dedup[name]
             })
             var meta = Object.assign({}, that.meta)
-            if (!meta.by) {
-              meta.by = {}
-            }
-            meta.by[uid] = true
+            meta[uid] = true
             if (fs && hash) {
               meta.path = uid + "/" + hash + "/" + fileN.name
               meta.type = metadata.contentType
@@ -112,10 +109,7 @@
           console.log(e)
           that.uploading += 1
           var meta = Object.assign({}, that.meta)
-          if (!meta.by) {
-            meta.by = {}
-          }
-          meta.by[uid] = true
+          meta[uid] = true
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
             var add  = {name: fileN.name, url: snapshot.downloadURL, type: snapshot.metadata.contentType}
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
