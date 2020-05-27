@@ -60,7 +60,7 @@
               let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
               fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
             } else {
-              that.upload(spark.end(),fileN,e.target.result)
+              that.upload(btoa(spark.end(true)),fileN,e.target.result)
             }
           }
           {
