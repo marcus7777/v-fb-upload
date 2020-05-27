@@ -137,17 +137,15 @@
           })
         })
       },
-      addMeta(file) {
+      async addMeta(file) {
         if (file.ref) {
-          if (!file.name) {
-            file.name = file.ref.split("/").slice(-1)[0]
-          }
-          storage().ref().child(file.ref).getDownloadURL().then( function (url) {
+          return await storage().ref().child(file.ref.fullPath).getDownloadURL().then( function (url) {
             file.url = url
-            storage().ref().child(file.ref).getMetadata().then(function (metadata) {
+            return storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
               if (metadata.contentType.indexOf("image") !== -1) {
                 file.image = url
               }
+              return Object.assign({metadata}, file)
             })
           })
         }
