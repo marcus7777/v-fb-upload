@@ -19,7 +19,9 @@
         default: [],
       },
       meta: {
-        default: {},
+        default: function() {
+          return {}
+        },
         type: Object,
       },
       uid: String,
