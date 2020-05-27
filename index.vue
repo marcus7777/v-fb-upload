@@ -91,7 +91,7 @@
               url,
               type: metadata.contentType,
               fileAsStr,
-              metadata.ref
+              ref: metadata.ref
             }
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url
