@@ -3,8 +3,8 @@
 -->
 
 <template>
-  <input type="file" id="files" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
-  <span v-if="uploading">
+  <input v-if="!uploading" type="file" id="files" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
+  <span v-else>
     ... {{uploading}}
   </span>
 </template>
@@ -29,12 +29,19 @@
       bucket: String,
       folder: String,
     },
-    data(() => ({
+    data: () => ({
       uploading:0,
       timeout: null,
-    })),
+      files:[]
+    }),
+    watch:{
+      files(val) {
+        this.$emit("input",addMeta(val))
+      },
+    },
     methods:{
       handleFileSelect(evt) {
+        let that = this
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
@@ -51,16 +58,16 @@
               let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
               fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
             } else {
-              that.upload(spark.end())
+              that.upload(spark.end(),fileN,e.target.result)
             }
           }
+          fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
         })
+
         evt.target.removeAttribute('value')
         evt.target.value = ""
-
-        return this.addMeta(this.input)
       },
-      upload(hash) {
+      upload(hash, fileN, fileAsStr) {
         let that = this
         let uid = that.uid || auth().currentUser.uid || "anyone"
         var toUploadto = storage().ref().child(uid + "/" + hash + "/" + fileN.name)
@@ -73,7 +80,7 @@
             //    add.image = url.downloadURL
             //  }
 
-            var add  = {name: fileN.name, url: url, type: metadata.contentType}
+            var add  = {name: fileN.name, url, type: metadata.contentType, fileAsStr}
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url
             }
@@ -86,14 +93,15 @@
             })
             var meta = Object.assign({}, that.meta)
             meta[uid] = "userId"
-            if (fs && that.logUpload && hash) {
+            if (fs && hash) {
               meta.path = uid + "/" + hash + "/" + fileN.name
               meta.type = metadata.contentType
               fs.collection("files").doc(hash).set(meta, {merge: true})
             }
           })
-        }).catch(function () {
-          that.set("uploading", that.uploading + 1)
+        }).catch(function (e) {
+          console.log(e)
+          that.uploading += 1
           var meta = Object.assign({}, that.meta)
           meta[uid] = "userId"
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
@@ -105,12 +113,12 @@
             that.files.concat([add]).forEach(function (file) {
               dedup[file.name] = file
             })
-            that.set("files",Object.keys(dedup).map(function (name) {
+            that.files = Object.keys(dedup).map(function (name) {
               return dedup[name]
-            }))
+            })
 
             toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
-            if (fs && that.logUpload && hash) {
+            if (fs && hash) {
               meta.path = uid + "/" + hash + "/" + fileN.name
               meta.type = snapshot.metadata.contentType
               fs.collection("files").doc(hash).set(meta, {merge: true})
@@ -118,7 +126,7 @@
             that.uploading = that.uploading - 1
           }).catch(function(e) {
             console.error(e)
-            that.uploading = that.uploading - 1)
+            that.uploading = that.uploading - 1
           })
         })
       },
@@ -156,7 +164,5 @@
         })
       },
     },
-    mounted(){
-    },
-  })
+  }
 </script>
