@@ -22,9 +22,6 @@
         default: {},
         type: Object,
       },
-      uploading: {
-        value: 0
-      },
       uid: String,
       accept: {
         default: "*"
@@ -32,11 +29,10 @@
       bucket: String,
       folder: String,
     },
-    computed: {
-      _addMeta() {
-        return this.addMeta(this.input)
-      }
-    },
+    data() => ({
+      uploading:0,
+      timeout: null,
+    }),
     methods:{
       handleFileSelect(evt) {
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
@@ -47,30 +43,22 @@
           var currentChunk = 0
           var spark = new SparkMD5.ArrayBuffer()
 
-          function loadNext() {
-            var start = currentChunk * chunkSize
-            var end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
-            fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
-          }
-
           fileReader.onload = function (e) {
             spark.append(e.target.result)
             currentChunk += 1
             if (currentChunk < chunks) {
-              loadNext()
+              let start = currentChunk * chunkSize
+              let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
+              fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
             } else {
-              upload(spark.end())
+              that.upload(spark.end())
             }
-          }
-
-          if (that.noMD5) {
-            upload("")
-          } else {
-            loadNext()
           }
         })
         evt.target.removeAttribute('value')
         evt.target.value = ""
+
+        return this.addMeta(this.input)
       },
       upload(hash) {
         let that = this
