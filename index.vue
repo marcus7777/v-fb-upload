@@ -29,10 +29,10 @@
       bucket: String,
       folder: String,
     },
-    data() => ({
+    data(() => ({
       uploading:0,
       timeout: null,
-    }),
+    })),
     methods:{
       handleFileSelect(evt) {
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
