@@ -90,8 +90,8 @@
               name: fileN.name,
               url,
               type: metadata.contentType,
-              fileAsStr,
-              ref: metadata.ref
+              ref: metadata.ref,
+              hash,
             }
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url
@@ -116,7 +116,8 @@
               url: snapshot.downloadURL,
               type: snapshot.metadata.contentType,
               ref: snapshot.ref,
-              fileAsStr,
+              hash,
+              metadata: snapshot.metadata
             }
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
               add.image = snapshot.downloadURL
