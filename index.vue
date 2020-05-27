@@ -9,6 +9,7 @@
   </span>
 </template>
 <script>
+  import {auth, fs, storage} from "@/db"
   import SparkMD5 from "spark-md5"
 
   export default {
@@ -30,6 +31,8 @@
       accept: {
         value: "*"
       },
+      bucket: String,
+      folder: String,
     },
     computed: {
       _addMeta() {
@@ -42,9 +45,9 @@
         files.forEach(function(file,index){
           if (file.ref && !file.name) {
             file.name = file.ref.split("/").slice(-1)[0]
-            firebase.storage().ref().child(file.ref).getDownloadURL().then( function (url) {
+            storage().ref().child(file.ref).getDownloadURL().then( function (url) {
               file.url = url
-              firebase.storage().ref().child(file.ref).getMetadata().then(function (metadata) {
+              storage().ref().child(file.ref).getMetadata().then(function (metadata) {
                 if (metadata.contentType.indexOf("image") !== -1) {
                   file.image = url
                 }
@@ -74,8 +77,8 @@
     mounted(){
       var that = this
       function handleFileSelect(evt) {
-        var uid = that.uid || firebase.auth().currentUser.uid || "anyone"
-        var db = db || firebase.firestore()
+        var uid = that.uid || auth().currentUser.uid || "anyone"
+        var db = fs
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
@@ -91,7 +94,7 @@
           }
 
           function upload(hash) {
-            var toUploadto = firebase.storage().ref().child(uid + "/" + hash + "/" + fileN.name)
+            var toUploadto = storage().ref().child(uid + "/" + hash + "/" + fileN.name)
 
             toUploadto.getDownloadURL().then( function (url) {
               firebase.storage().ref().getMetadata(uid + "/" + hash + "/" + fileN.name).then(function(metadata) {
