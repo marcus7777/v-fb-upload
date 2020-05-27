@@ -61,12 +61,12 @@
                     }
                     Object.assign(dedup[file.name], file)
                   })
-                  that.set("files",Object.keys(dedup).map(function (name) {
+                  that.files = Object.keys(dedup).map(function (name) {
                     return dedup[name]
-                  }))
-                  that.set("files",that.files.map(function (file) {
+                  })
+                  that.files = that.files.map(function (file) {
                     return file
-                  }))
+                  })
                 }, 0)
               })
             })
@@ -78,7 +78,6 @@
       var that = this
       function handleFileSelect(evt) {
         var uid = that.uid || auth().currentUser.uid || "anyone"
-        var db = fs
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
           var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
@@ -113,15 +112,15 @@
                 that.files.concat([add]).forEach(function (file) {
                   dedup[file.name] = file
                 })
-                that.set("files",Object.keys(dedup).map(function (name) {
+                that.files = Object.keys(dedup).map(function (name) {
                   return dedup[name]
-                }))
+                })
                 var meta = Object.assign({}, that.meta)
                 meta[uid] = "userId"
-                if (db && that.logUpload && hash) {
+                if (fs && that.logUpload && hash) {
                   meta.path = uid + "/" + hash + "/" + fileN.name
                   meta.type = metadata.contentType
-                  db.collection("files").doc(hash).set(meta, {merge: true})
+                  fs.collection("files").doc(hash).set(meta, {merge: true})
                 }
               })
             }).catch(function () {
@@ -142,14 +141,14 @@
                 }))
 
                 toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
-                if (db && that.logUpload && hash) {
+                if (fs && that.logUpload && hash) {
                   meta.path = uid + "/" + hash + "/" + fileN.name
                   meta.type = snapshot.metadata.contentType
-                  db.collection("files").doc(hash).set(meta, {merge: true})
+                  fs.collection("files").doc(hash).set(meta, {merge: true})
                 }
                 that.uploading = that.uploading - 1
              }).catch(function(e) {
-                console.log(e)
+                console.error(e)
                 that.uploading = that.uploading - 1)
               })
             })
