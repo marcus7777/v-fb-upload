@@ -13,7 +13,7 @@
   import SparkMD5 from "spark-md5"
 
   export default {
-    prop:{
+    props:{
       input:{
         type: Array,
         default: [],
