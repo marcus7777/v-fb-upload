@@ -114,8 +114,8 @@
             var add  = {
               name: fileN.name,
               url: snapshot.downloadURL,
-              type: snapshot.metadata.contentType
-              ref: snapshot.ref
+              type: snapshot.metadata.contentType,
+              ref: snapshot.ref,
             }
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
               add.image = snapshot.downloadURL
