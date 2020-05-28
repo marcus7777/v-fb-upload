@@ -150,13 +150,13 @@
 
         if (file.ref) {
           file.ref.getDownloadURL().then(async function (url) {
-            file.url = url
+            returnFile.url = url
             storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
               if (metadata.md5Hash !== file.hash) {
                 throw("Service's hash does not match local hash")
               }
               if (metadata.contentType.indexOf("image") !== -1) {
-                file.image = url
+                returnFile.image = url
               }
               let vueable = Object.keys(metadata).reduce((a, prop) => {
                 if (typeof metadata[prop] === "string") {
