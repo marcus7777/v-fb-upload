@@ -175,7 +175,11 @@
                 }
                 return f
               })
+            }).catch(e => {
+              console.error(e)
             })
+          }).catch(e => {
+            console.error(e)
           })
         }
         return returnFile
