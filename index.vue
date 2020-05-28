@@ -102,11 +102,6 @@
               add.image = url
             }
             that.files.push(that.addMeta(add))
-            if (fs && hash) {
-              meta.path = uid + "/" + hash + "/" + fileN.name
-              meta.type = metadata.contentType
-              fs.collection("files").doc(hash).set(meta, {merge: true})
-            }
           }).catch(e => {
             console.error(e)
           })
