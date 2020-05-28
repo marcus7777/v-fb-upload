@@ -16,7 +16,9 @@
     props:{
       input:{
         type: Array,
-        default: [],
+        default: function() {
+          return []
+        },
       },
       meta: {
         default: function() {
@@ -60,7 +62,7 @@
               let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
               fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
             } else {
-              that.upload(btoa(spark.end(true)),fileN)
+              that.upload(btoa(spark.end(true)), fileN)
             }
           }
           {
@@ -76,7 +78,7 @@
       upload(hash, fileN) {
         let that = this
         let uid = that.uid || auth().currentUser.uid || "anyone"
-        var toUploadto = storage().ref().child(uid + "/" + hash + "/" + fileN.name)
+        var toUploadto = storage().ref().child(uid + "/" + this.folder + "/" + fileN.name)
 
         toUploadto.getDownloadURL().then( function (url) {
           firebase.storage().ref().getMetadata(uid + "/" + hash + "/" + fileN.name).then(function(metadata) {
@@ -104,9 +106,10 @@
               meta.type = metadata.contentType
               fs.collection("files").doc(hash).set(meta, {merge: true})
             }
+          }).catch(e => {
+            console.error(e)
           })
-        }).catch(function (e) {
-          console.log(e)
+        }).catch(function () {
           that.uploading += 1
           var meta = Object.assign({}, that.meta)
           meta[uid] = "UserID"
