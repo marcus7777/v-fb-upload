@@ -138,15 +138,21 @@
           })
         })
       },
-      async addMeta(file) {
+      addMeta(file) {
+        let that = this
         if (file.ref) {
-          return await file.ref.getDownloadURL().then(async function (url) {
+          return file.ref.getDownloadURL().then(async function (url) {
             file.url = url
-            return await storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
+            return storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
               if (metadata.contentType.indexOf("image") !== -1) {
                 file.image = url
               }
-              return Object.assign({metadata}, file)
+
+              file = Object.assign({metadata}, file)
+              console.log(file)
+              //check hash
+              console.log(that.files)
+              return file
             })
           })
         } else {
