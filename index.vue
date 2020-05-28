@@ -152,6 +152,9 @@
           file.ref.getDownloadURL().then(async function (url) {
             file.url = url
             storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
+              if (metadata.md5Hash !== file.hash) {
+                throw("Service's hash does not match local hash")
+              }
               if (metadata.contentType.indexOf("image") !== -1) {
                 file.image = url
               }
@@ -161,10 +164,13 @@
                 }
                 return a
               },{})
-
               let filePlus = Object.assign(vueable, returnFile)
-              console.log(that.files)
-              return file
+              that.files = that.files.map(f => {
+                if (f.hash === filePlus.md5Hash) {
+                  return filePlus
+                }
+                return f
+              })
             })
           })
         }
