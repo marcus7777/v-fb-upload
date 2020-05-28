@@ -147,8 +147,13 @@
               if (metadata.contentType.indexOf("image") !== -1) {
                 file.image = url
               }
-
-              file = Object.assign({metadata}, file)
+              let vueable = Object.keys(metadata).reduce((a, prop) => {
+                if (typeof metadata[prop] === "string") {
+                  a[prop] = metadata[prop]
+                }
+                return a
+              },{})
+              file = Object.assign(vueable, file)
               console.log(file)
               //check hash
               console.log(that.files)
