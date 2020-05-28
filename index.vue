@@ -86,11 +86,6 @@
         toUploadto.getDownloadURL().then( function (url) {
           firebase.storage().ref().getMetadata(path).then(function(metadata) {
             console.log(metadata)
-            //  var add  = {name: fileN.name, url: url.downloadURL, type: url.metadata.contentType}
-            //  if (url.metadata.contentType.indexOf("image") !== -1) {
-            //    add.image = url.downloadURL
-            //  }
-
             var add  = {
               name: fileN.name,
               url,
@@ -156,9 +151,7 @@
                 return a
               },{})
               let filePlus = Object.assign({}, returnFile, vueable)
-              if (fs && file.hash) {
-                fs.collection("files").doc(file.hash).set(filePlus, {merge: true})
-              }
+              fs.collection("files").doc(file.hash).set(filePlus, {merge: true})
               that.files = that.files.map(f => {
                 if (f.hash === filePlus.md5Hash) {
                   return filePlus
