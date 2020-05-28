@@ -147,7 +147,6 @@
                 if (typeof metadata[prop] === "string" || prop === "customMetadata") {
                   a[prop] = metadata[prop]
                 }
-                if (
                 return a
               },{})
               let filePlus = Object.assign({}, returnFile, vueable)
