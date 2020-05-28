@@ -149,8 +149,14 @@
         },{})
 
         if (file.ref) {
-          file.ref.getDownloadURL().then(async function (url) {
-            returnFile.url = url
+          file.ref.getDownloadURL().then(function (url) {
+            console.log
+            returnFile.url = Object.keys(url).reduce((a, prop) => {
+              if (typeof url[prop] === "string") {
+                a[prop] = url[prop]
+              }
+              return a
+            },{})
             storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
               if (metadata.md5Hash !== file.hash) {
                 throw("Service's hash does not match local hash")
