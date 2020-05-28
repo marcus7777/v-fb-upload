@@ -169,20 +169,12 @@
                 return a
               },{})
               let filePlus = Object.assign(vueable, returnFile)
-              let dedup = {}
               that.files = that.files.map(f => {
                 if (f.hash === filePlus.md5Hash) {
                   return filePlus
                 }
-                dedup[f.hash] = true
                 return f
-              }).reduce((a,f) => {
-                if (dedup[f.hash]) {
-                  delete(dedup[f.hash])
-                  a.push(f)
-                }
-                return a
-              }, [])
+              })
             })
           })
         }
