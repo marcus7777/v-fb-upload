@@ -139,11 +139,19 @@
         })
       },
       addMeta(file) {
+        console.log(file)
         let that = this
+        let returnFile = Object.keys(file).reduce((a, prop) => {
+          if (typeof file[prop] === "string") {
+            a[prop] = file[prop]
+          }
+          return a
+        },{})
+
         if (file.ref) {
-          return file.ref.getDownloadURL().then(async function (url) {
+          file.ref.getDownloadURL().then(async function (url) {
             file.url = url
-            return storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
+            storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
               if (metadata.contentType.indexOf("image") !== -1) {
                 file.image = url
               }
@@ -153,16 +161,14 @@
                 }
                 return a
               },{})
-              file = Object.assign(vueable, file)
-              console.log(file)
-              //check hash
+
+              let filePlus = Object.assign(vueable, returnFile)
               console.log(that.files)
               return file
             })
           })
-        } else {
-          return file
         }
+        return returnFile
       },
     },
   }
