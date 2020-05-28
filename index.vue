@@ -155,7 +155,7 @@
           file.ref.getDownloadURL().then(function (url) {
             console.log(url)
             returnFile.url = url
-            storage().ref().child(file.ref.fullPath).getMetadata().then(function (metadata) {
+            file.ref.getMetadata().then(function (metadata) {
               if (metadata.md5Hash !== file.hash) {
                 throw("Service's hash does not match local hash")
               }
