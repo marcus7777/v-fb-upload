@@ -78,10 +78,13 @@
       upload(hash, fileN) {
         let that = this
         let uid = that.uid || auth().currentUser.uid || "anyone"
-        var toUploadto = storage().ref().child(uid + "/" + this.folder + "/" + fileN.name)
+        let path = this.folder + "/" + uid + "/" + fileN.name
+        let toUploadto = storage().ref().child(path)
+        let meta = Object.assign({}, that.meta)
+        meta[uid] = "UserID"
 
         toUploadto.getDownloadURL().then( function (url) {
-          firebase.storage().ref().getMetadata(uid + "/" + hash + "/" + fileN.name).then(function(metadata) {
+          firebase.storage().ref().getMetadata(path).then(function(metadata) {
             console.log(metadata)
             //  var add  = {name: fileN.name, url: url.downloadURL, type: url.metadata.contentType}
             //  if (url.metadata.contentType.indexOf("image") !== -1) {
@@ -99,8 +102,6 @@
               add.image = url
             }
             that.files.push(that.addMeta(add))
-            var meta = Object.assign({}, that.meta)
-            meta[uid] = "UserID"
             if (fs && hash) {
               meta.path = uid + "/" + hash + "/" + fileN.name
               meta.type = metadata.contentType
@@ -111,8 +112,6 @@
           })
         }).catch(function () {
           that.uploading += 1
-          var meta = Object.assign({}, that.meta)
-          meta[uid] = "UserID"
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
             var add  = {
               name: fileN.name,
@@ -128,12 +127,6 @@
 
             that.files.push(that.addMeta(add))
 
-            toUploadto.getMetadata().then( function(x){console.log(x)} ).catch( function(e){console.log(e)} )
-            if (fs && hash) {
-              meta.path = uid + "/" + hash + "/" + fileN.name
-              meta.type = snapshot.metadata.contentType
-              fs.collection("files").doc(hash).set(meta, {merge: true})
-            }
             that.uploading = that.uploading - 1
           }).catch(function(e) {
             console.error(e)
@@ -142,7 +135,6 @@
         })
       },
       addMeta(file) {
-        console.log(file)
         let that = this
         let returnFile = Object.keys(file).reduce((a, prop) => {
           if (typeof file[prop] === "string") {
@@ -153,7 +145,6 @@
 
         if (file.ref) {
           file.ref.getDownloadURL().then(function (url) {
-            console.log(url)
             returnFile.url = url
             file.ref.getMetadata().then(function (metadata) {
               if (metadata.md5Hash !== file.hash) {
@@ -163,12 +154,16 @@
                 returnFile.image = url
               }
               let vueable = Object.keys(metadata).reduce((a, prop) => {
-                if (typeof metadata[prop] === "string") {
+                if (typeof metadata[prop] === "string" || prop === "customMetadata") {
                   a[prop] = metadata[prop]
                 }
+                if (
                 return a
               },{})
-              let filePlus = Object.assign(vueable, returnFile)
+              let filePlus = Object.assign({}, returnFile, vueable)
+              if (fs && file.hash) {
+                fs.collection("files").doc(file.hash).set(filePlus, {merge: true})
+              }
               that.files = that.files.map(f => {
                 if (f.hash === filePlus.md5Hash) {
                   return filePlus
