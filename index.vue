@@ -98,7 +98,7 @@
 
 
         toUploadto.getDownloadURL().then( function (url) {
-          firebase.storage().ref().getMetadata(path).then(function(metadata) {
+          toUploadto.getMetadata().then(function(metadata) {
             console.log(metadata)
             var add  = {
               name: fileN.name,
@@ -108,13 +108,14 @@
               hash,
             }
             if (metadata.contentType.indexOf("image") !== -1) {
-              add.image = url
+              add.image = url // add for other types
             }
             that.files.push(that.addMeta(add))
           }).catch(e => {
             console.error(e)
           })
-        }).catch(function () {
+        }).catch(function (e) {
+          console.log(e)
           that.uploading += 1
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
             var add  = {
