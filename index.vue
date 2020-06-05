@@ -5,7 +5,7 @@
 <template>
   <input v-if="!uploading" type="file" id="files" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
   <span v-else>
-    ... {{uploading}}
+    {{text}}... {{uploading}}
   </span>
 </template>
 <script>
@@ -32,6 +32,9 @@
       },
       bucket: String,
       folder: String,
+      text: {
+        default: "uploading"
+      },
     },
     data: () => ({
       uploading:0,
