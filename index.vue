@@ -135,7 +135,7 @@
           })
         })
       },
-      async addMeta(file) {
+      addMeta(file) {
         let that = this
         let returnFile = Object.keys(file).reduce((a, prop) => {
           if (typeof file[prop] === "string") {
@@ -145,7 +145,7 @@
         },{})
 
         if (file.ref) {
-        await file.ref.getDownloadURL().then(function (url) {
+          file.ref.getDownloadURL().then(function (url) {
             returnFile.url = url
             file.ref.getMetadata().then(function (metadata) {
               if (metadata.md5Hash !== file.hash) {
