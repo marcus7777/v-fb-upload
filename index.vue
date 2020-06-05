@@ -44,6 +44,15 @@
       },
     },
     methods:{
+      base64ToHex(str) {
+        const raw = atob(str);
+        let result = '';
+        for (let i = 0; i < raw.length; i++) {
+          const hex = raw.charCodeAt(i).toString(16);
+          result += (hex.length === 2 ? hex : '0' + hex);
+        }
+        return result.toUpperCase();
+      },
       handleFileSelect(evt) {
         let that = this
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
@@ -53,7 +62,7 @@
           var chunks = Math.ceil(fileN.size / chunkSize)
           var currentChunk = 0
           var spark = new SparkMD5.ArrayBuffer()
-
+          console.log("debugger")
           fileReader.onload = function (e) {
             spark.append(e.target.result)
             currentChunk += 1
@@ -78,10 +87,12 @@
       upload(hash, fileN) {
         let that = this
         let uid = that.uid || auth().currentUser.uid || "anyone"
-        let path = this.folder + "/" + uid + "/" + fileN.name
+        let folder = this.folder || this.base64ToHex(hash) 
+        let path = folder + "/" + uid + "/" + fileN.name
         let toUploadto = storage().ref().child(path)
         let meta = Object.assign({}, that.meta)
         meta[uid] = "UserID"
+
 
         toUploadto.getDownloadURL().then( function (url) {
           firebase.storage().ref().getMetadata(path).then(function(metadata) {
@@ -150,7 +161,7 @@
                 return a
               },{})
               let filePlus = Object.assign({}, returnFile, vueable)
-              fs.collection("files").doc(file.hash).set(filePlus, {merge: true})
+              fs.collection("files").doc(that.base64ToHex(file.hash)).set(filePlus, {merge: true})
               that.files = that.files.map(f => {
                 if (f.hash === filePlus.md5Hash) {
                   return filePlus
