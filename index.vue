@@ -90,22 +90,21 @@
       upload(hash, fileN) {
         let that = this
         let uid = that.uid || auth().currentUser.uid || "anyone"
-        let folder = this.folder || this.base64ToHex(hash) 
-        let path = folder + "/" + uid + "/" + fileN.name
+        let folder = this.folder || this.base64ToHex(hash)
+        let path = folder + "/" + fileN.name
         let toUploadto = storage().ref().child(path)
         let meta = Object.assign({}, that.meta)
-        meta[uid] = "UserID"
 
+        meta[uid] = "UserID"
 
         toUploadto.getDownloadURL().then( function (url) {
           toUploadto.getMetadata().then(function(metadata) {
             console.log(metadata)
             var add  = {
-              name: fileN.name,
-              url,
               type: metadata.contentType,
               ref: metadata.ref,
-              hash,
+              name: fileN.name,
+              hash, url,
             }
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url // add for other types
