@@ -43,10 +43,10 @@
     }),
     watch:{
       files(val) {
-        this.$emit("input",val)
+        this.$emit("input", val)
       },
       uploading(val){
-        this.$emit("uploading",val)
+        this.$emit("uploading", val)
       },
     },
     methods:{
