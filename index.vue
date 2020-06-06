@@ -45,6 +45,9 @@
       files(val) {
         this.$emit("input",val)
       },
+      uploading(val){
+        this.$emit("uploading",val)
+      },
     },
     methods:{
       base64ToHex(str) {
