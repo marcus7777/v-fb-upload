@@ -46,7 +46,7 @@
         this.$emit("input", val)
       },
       uploading(val) {
-        this.$emit("uploading", val)
+        this.$emit("uploading", val, this.meta)
       },
     },
     methods:{
