@@ -45,7 +45,7 @@
       files(val) {
         this.$emit("input", val)
       },
-      uploading(val){
+      uploading(val) {
         this.$emit("uploading", val)
       },
     },
