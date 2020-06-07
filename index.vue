@@ -115,7 +115,7 @@
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
             var add  = {
               hash,
-              metadata: snapshot.metadata
+              metadata: snapshot.metadata,
               name: fileN.name,
               ref: snapshot.ref,
               type: snapshot.metadata.contentType,
