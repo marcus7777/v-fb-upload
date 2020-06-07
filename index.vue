@@ -4,9 +4,7 @@
 
 <template>
   <input v-if="!uploading" type="file" id="files" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
-  <span v-else>
-    {{text}}... {{uploading}}
-  </span>
+  <span v-else> {{text}}... {{uploading}} </span>
 </template>
 <script>
   import {auth, fs, storage} from "@/db"
@@ -15,10 +13,10 @@
   export default {
     props:{
       input:{
-        type: Array,
         default: function() {
           return []
         },
+        type: Array,
       },
       meta: {
         default: function() {
@@ -62,13 +60,12 @@
       handleFileSelect(evt) {
         let that = this
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
-          var fileReader = new FileReader()
           var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
           var chunkSize = 2097152
           var chunks = Math.ceil(fileN.size / chunkSize)
           var currentChunk = 0
+          var fileReader = new FileReader()
           var spark = new SparkMD5.ArrayBuffer()
-          console.log("debugger")
           fileReader.onload = function (e) {
             spark.append(e.target.result)
             currentChunk += 1
@@ -86,28 +83,24 @@
             fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
           }
         })
-
         evt.target.removeAttribute('value')
         evt.target.value = ""
       },
       upload(hash, fileN) {
-        let that = this
-        let uid = that.uid || auth().currentUser.uid || "anyone"
         let folder = this.folder || this.base64ToHex(hash)
-        let path = folder + "/" + fileN.name
-        let toUploadto = storage().ref().child(path)
         let meta = Object.assign({}, that.meta)
-
+        let path = folder + "/" + fileN.name
+        let that = this
+        let toUploadto = storage().ref().child(path)
+        let uid = that.uid || auth().currentUser.uid || "anyone"
         meta[uid] = "UserID"
-
         toUploadto.getDownloadURL().then( function (url) {
           toUploadto.getMetadata().then(function(metadata) {
-            console.log(metadata)
             var add  = {
-              type: metadata.contentType,
-              ref: metadata.ref,
-              name: fileN.name,
               hash, url,
+              name: fileN.name,
+              ref: metadata.ref,
+              type: metadata.contentType,
             }
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url // add for other types
@@ -121,19 +114,17 @@
           that.uploading += 1
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
             var add  = {
-              name: fileN.name,
-              url: snapshot.downloadURL,
-              type: snapshot.metadata.contentType,
-              ref: snapshot.ref,
               hash,
               metadata: snapshot.metadata
+              name: fileN.name,
+              ref: snapshot.ref,
+              type: snapshot.metadata.contentType,
+              url: snapshot.downloadURL,
             }
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
               add.image = snapshot.downloadURL
             }
-
             that.files.push(that.addMeta(add))
-
             that.uploading = that.uploading - 1
           }).catch(function(e) {
             console.error(e)
