@@ -3,7 +3,7 @@
 -->
 
 <template>
-  <input v-if="!uploading" type="file" id="files" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
+  <input v-if="!uploading" type="file" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
   <span v-else> {{text}}... {{uploading}} </span>
 </template>
 <script>
