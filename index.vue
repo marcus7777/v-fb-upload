@@ -12,7 +12,7 @@
 
   export default {
     props:{
-      input:{
+      value:{
         default: function() {
           return []
         },
@@ -39,15 +39,30 @@
       timeout: null,
       files:[]
     }),
+    created(){
+      this.files = [...this.value]
+    },
     watch:{
       files(val) {
-        this.$emit("input", val)
+        this.$emit("input", this.removeDups(val))
       },
       uploading(val) {
         this.$emit("uploading", val, this.meta)
       },
     },
     methods:{
+      removeDups(files) {
+        let unique = {};
+        files.forEach(function(file, i) {
+          if(!unique[file.hash]) {
+            unique[file.hash] = i
+          }
+        });
+        return Object.keys(unique).reduce((a, h) => {
+          a.push(files[unique[h]])
+          return a
+        },[])
+      },
       base64ToHex(str) {
         const raw = atob(str);
         let result = '';
@@ -88,9 +103,9 @@
       },
       upload(hash, fileN) {
         let folder = this.folder || this.base64ToHex(hash)
-        let meta = Object.assign({}, that.meta)
         let path = folder + "/" + fileN.name
         let that = this
+        let meta = { ...that.meta}
         let toUploadto = storage().ref().child(path)
         let uid = that.uid || auth().currentUser.uid || "anyone"
         meta[uid] = "UserID"
