@@ -120,6 +120,7 @@
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url // add for other types
             }
+            that.$emit("newFile", add)
             that.files.push(that.addMeta(add))
           }).catch(e => {
             console.error(e)
