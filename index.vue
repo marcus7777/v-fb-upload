@@ -140,6 +140,7 @@
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
               add.image = snapshot.downloadURL
             }
+            that.$emit("newFile", add)
             that.files.push(that.addMeta(add))
             that.uploading = that.uploading - 1
           }).catch(function(e) {
