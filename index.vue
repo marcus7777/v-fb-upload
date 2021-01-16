@@ -182,31 +182,26 @@
         },{})
 
         if (file.ref) {
-          file.ref.getDownloadURL().then(function (url) {
-            returnFile.url = url
-            file.ref.getMetadata().then(function (metadata) {
-              if (metadata.md5Hash !== file.hash) {
-                throw("Service's hash does not match local hash")
+          file.ref.getMetadata().then(function (metadata) {
+            if (metadata.md5Hash !== file.hash) {
+              throw("Service's hash does not match local hash")
+            }
+            if (metadata.contentType.indexOf("image") !== -1) {
+              returnFile.image = url
+            }
+            let vueable = Object.keys(metadata).reduce((a, prop) => {
+              if (typeof metadata[prop] === "string" || prop === "customMetadata") {
+                a[prop] = metadata[prop]
               }
-              if (metadata.contentType.indexOf("image") !== -1) {
-                returnFile.image = url
+              return a
+            },{})
+            let filePlus = Object.assign({}, returnFile, vueable)
+            fs.collection("files").doc(that.base64ToHex(file.hash)).set(filePlus, {merge: true})
+            that.files = that.files.map(f => {
+              if (f.hash === filePlus.md5Hash) {
+                return filePlus
               }
-              let vueable = Object.keys(metadata).reduce((a, prop) => {
-                if (typeof metadata[prop] === "string" || prop === "customMetadata") {
-                  a[prop] = metadata[prop]
-                }
-                return a
-              },{})
-              let filePlus = Object.assign({}, returnFile, vueable)
-              fs.collection("files").doc(that.base64ToHex(file.hash)).set(filePlus, {merge: true})
-              that.files = that.files.map(f => {
-                if (f.hash === filePlus.md5Hash) {
-                  return filePlus
-                }
-                return f
-              })
-            }).catch(e => {
-              console.error(e)
+              return f
             })
           }).catch(e => {
             console.error(e)
