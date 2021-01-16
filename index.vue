@@ -173,38 +173,19 @@
         })
       },
       addMeta(file) {
-        let that = this
         let returnFile = Object.keys(file).reduce((a, prop) => {
           if (typeof file[prop] === "string") {
             a[prop] = file[prop]
           }
           return a
         },{})
-
-        if (file.ref) {
-          file.ref.getMetadata().then(function (metadata) {
-            if (metadata.md5Hash !== file.hash) {
-              throw("Service's hash does not match local hash")
+        if (file.hash) {
+          fs.collection("files").doc(that.base64ToHex(file.hash)).set(returnFile, {merge: true})
+          this.files = this.files.map(f => {
+            if (f.hash === filePlus.md5Hash) {
+              return filePlus
             }
-            if (metadata.contentType.indexOf("image") !== -1) {
-              returnFile.image = url
-            }
-            let vueable = Object.keys(metadata).reduce((a, prop) => {
-              if (typeof metadata[prop] === "string" || prop === "customMetadata") {
-                a[prop] = metadata[prop]
-              }
-              return a
-            },{})
-            let filePlus = Object.assign({}, returnFile, vueable)
-            fs.collection("files").doc(that.base64ToHex(file.hash)).set(filePlus, {merge: true})
-            that.files = that.files.map(f => {
-              if (f.hash === filePlus.md5Hash) {
-                return filePlus
-              }
-              return f
-            })
-          }).catch(e => {
-            console.error(e)
+            return f
           })
         }
         return returnFile
