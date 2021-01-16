@@ -62,12 +62,8 @@
       timeout: null,
       files:[]
     }),
-    created(){
-      this.files = [...this.value]
-    },
     watch:{
-      files(val) {
-        this.$emit("input", this.removeDups(val))
+      value(val) {
       },
       uploading(val) {
         this.$emit("uploading", val, this.meta)
@@ -144,7 +140,7 @@
               add.image = url // add for other types
             }
             that.$emit("newFile", add)
-            that.$emit("input", that.addMeta(add))
+            that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
           }).catch(e => {
             console.error(e)
           })
