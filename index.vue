@@ -132,8 +132,8 @@
         let toUploadto = storage().ref().child(path)
         let uid = that.uid || auth().currentUser.uid || "anyone"
         meta[uid] = "UserID"
-        toUploadto.getDownloadURL().then( function (url) {
-          toUploadto.getMetadata().then(function(metadata) {
+        toUploadto.getDownloadURL().then(url => {
+          toUploadto.getMetadata().then(metadata => {
             var add  = {
               hash, url,
               name: fileN.name,
@@ -144,12 +144,12 @@
               add.image = url // add for other types
             }
             that.$emit("newFile", add)
-            that.files.push(that.addMeta(add))
+            that.$emit("input", that.addMeta(add))
           }).catch(e => {
             console.error(e)
           })
         }).catch(function (e) {
-          console.log(e)
+          console.info(e)
           that.uploading += 1
           toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
             var add  = {
@@ -164,11 +164,11 @@
               add.image = snapshot.downloadURL
             }
             that.$emit("newFile", add)
-            that.files.push(that.addMeta(add))
-            that.uploading = that.uploading - 1
+            that.$emit("input", that.addMeta(add))
+            that.uploading -= 1
           }).catch(function(e) {
             console.error(e)
-            that.uploading = that.uploading - 1
+            that.uploading -= 1
           })
         })
       },
@@ -180,7 +180,7 @@
           return a
         },{})
         if (file.hash) {
-          fs.collection("files").doc(that.base64ToHex(file.hash)).set(returnFile, {merge: true})
+          fs.collection("files").doc(this.base64ToHex(file.hash)).set(returnFile, {merge: true})
           this.files = this.files.map(f => {
             if (f.hash === filePlus.md5Hash) {
               return filePlus
