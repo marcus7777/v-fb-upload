@@ -3,9 +3,22 @@
 -->
 
 <template>
-  <input v-if="!uploading" type="file" :accept="accept" name="files[]" multiple @change="handleFileSelect" />
+  <form class="file" v-if="!uploading" :style="'overflow: hidden; width: '+width">
+    <input type="file" :accept="accept" name="files[]" :data-text="label" class="custom-file-input" multiple @change="handleFileSelect" />
+  </form>
   <span v-else> {{text}}... {{uploading}} </span>
 </template>
+<style>
+  .custom-file-input::-webkit-file-upload-button {
+    visibility: hidden;
+  }
+  .custom-file-input::before {
+    content: attr(data-text);
+    display: inline-block;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+</style>
 <script>
   import {auth, fs, storage} from "@/db"
   import SparkMD5 from "spark-md5"
@@ -26,12 +39,22 @@
       },
       uid: String,
       accept: {
-        default: "*"
+        default: "*",
+        type: String,
       },
       bucket: String,
       folder: String,
       text: {
-        default: "uploading"
+        default: "uploading",
+        type: String,
+      },
+      label:{
+        default: "upload",
+        type: String,
+      },
+      width:{
+        default: "50px",
+        type: String,
       },
     },
     data: () => ({
