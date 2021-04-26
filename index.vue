@@ -139,8 +139,10 @@
             if (metadata.contentType.indexOf("image") !== -1) {
               add.image = url // add for other types
             }
-            that.$emit("newFile", add)
-            that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
+            setTimeout(() => {
+              that.$emit("newFile", that.addMeta(add))
+              that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
+            }, 300)
           }).catch(e => {
             console.error(e)
           })
@@ -159,9 +161,12 @@
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
               add.image = snapshot.downloadURL
             }
-            that.$emit("newFile", add)
-            that.$emit("input", that.addMeta(add))
-            that.uploading -= 1
+            setTimeout(() => {
+              that.$emit("newFile", that.addMeta(add))
+              that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
+              that.uploading -= 1
+            }, 600)
+            
           }).catch(function(e) {
             console.error(e)
             that.uploading -= 1
