@@ -3,10 +3,10 @@
 -->
 
 <template>
-  <form class="file" v-if="!uploading" :style="'overflow: hidden; width: '+width">
+  <span v-if="uploading"> {{text}}... {{uploading}} </span>
+  <form class="file" v-else :style="'overflow: hidden; width: '+width">
     <input type="file" :accept="accept" name="files[]" :data-text="label" class="custom-file-input" multiple @change="handleFileSelect" />
   </form>
-  <span v-else> {{text}}... {{uploading}} </span>
 </template>
 <style>
   .custom-file-input::-webkit-file-upload-button {
@@ -141,7 +141,7 @@
             }
             setTimeout(() => {
               that.$emit("newFile", that.addMeta(add))
-              that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
+              that.$emit("input", that.removeDups([...that.files, that.addMeta(add)]))
             }, 300)
           }).catch(e => {
             console.error(e)
@@ -149,23 +149,22 @@
         }).catch(function (e) {
           console.info(e)
           that.uploading += 1
-          toUploadto.put(fileN, {customMetadata:meta}).then(function(snapshot) { //upload
+          toUploadto.put(fileN, {customMetadata:meta}).then(async function(snapshot) { //upload
+            console.log({snapshot})
             var add  = {
               hash,
               metadata: snapshot.metadata,
               name: fileN.name,
               ref: snapshot.ref,
               type: snapshot.metadata.contentType,
-              url: snapshot.downloadURL,
+              url: await snapshot.ref.getDownloadURL(),
             }
             if (snapshot.metadata.contentType.indexOf("image") !== -1) {
-              add.image = snapshot.downloadURL
+              add.image = add.url
             }
-            setTimeout(() => {
-              that.$emit("newFile", that.addMeta(add))
-              that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
-              that.uploading -= 1
-            }, 600)
+            that.$emit("newFile", that.addMeta(add))
+            that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
+            that.uploading -= 1
             
           }).catch(function(e) {
             console.error(e)
