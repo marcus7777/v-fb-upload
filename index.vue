@@ -58,12 +58,16 @@
       },
     },
     data: () => ({
-      uploading:0,
+      uploading: 0,
       timeout: null,
-      files:[]
+      files: [],
     }),
     watch:{
-      value(val) {
+      value:{
+        handler(val) {
+          this.files = this.removeDups(val)
+        },
+	immediate: true,
       },
       uploading(val) {
         this.$emit("uploading", val, this.meta)
@@ -71,25 +75,25 @@
     },
     methods:{
       removeDups(files) {
-        let unique = {};
+        let unique = {}
         files.forEach(function(file, i) {
           if(!unique[file.hash]) {
             unique[file.hash] = i
           }
-        });
+        })
         return Object.keys(unique).reduce((a, h) => {
           a.push(files[unique[h]])
           return a
         },[])
       },
       base64ToHex(str) {
-        const raw = atob(str);
-        let result = '';
+        const raw = atob(str)
+        let result = ''
         for (let i = 0; i < raw.length; i++) {
-          const hex = raw.charCodeAt(i).toString(16);
-          result += (hex.length === 2 ? hex : '0' + hex);
+          const hex = raw.charCodeAt(i).toString(16)
+          result += (hex.length === 2 ? hex : '0' + hex)
         }
-        return result.toUpperCase();
+        return result.toUpperCase()
       },
       handleFileSelect(evt) {
         let that = this
@@ -137,12 +141,12 @@
               type: metadata.contentType,
             }
             if (metadata.contentType.indexOf("image") !== -1) {
-              add.image = url // add for other types
+              add.image = true
             }
             setTimeout(() => {
               that.$emit("newFile", that.addMeta(add))
               that.$emit("input", that.removeDups([...that.files, that.addMeta(add)]))
-            }, 300)
+            }, 0)
           }).catch(e => {
             console.error(e)
           })
@@ -151,7 +155,7 @@
           that.uploading += 1
           toUploadto.put(fileN, {customMetadata:meta}).then(async function(snapshot) { //upload
             console.log({snapshot})
-            var add  = {
+            var add = {
               hash,
               metadata: snapshot.metadata,
               name: fileN.name,
