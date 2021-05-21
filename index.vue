@@ -3,8 +3,8 @@
 -->
 
 <template>
-  <span v-if="uploading"> {{text}}... {{uploading}} </span>
-  <form class="file" v-else :style="'overflow: hidden; width: '+width">
+  <div v-if="uploading"> {{text}}... {{uploading}} </div>
+  <form v-else class="file" :style="'overflow: hidden; width: '+width">
     <input type="file" :accept="accept" name="files[]" :data-text="label" class="custom-file-input" multiple @change="handleFileSelect" />
   </form>
 </template>
@@ -26,9 +26,6 @@
   export default {
     props:{
       value:{
-        default: function() {
-          return []
-        },
         type: Array,
       },
       meta: {
@@ -60,32 +57,13 @@
     data: () => ({
       uploading: 0,
       timeout: null,
-      files: [],
     }),
     watch:{
-      value:{
-        handler(val) {
-          this.files = this.removeDups(val)
-        },
-	immediate: true,
-      },
       uploading(val) {
         this.$emit("uploading", val, this.meta)
       },
     },
     methods:{
-      removeDups(files) {
-        let unique = {}
-        files.forEach(function(file, i) {
-          if(!unique[file.hash]) {
-            unique[file.hash] = i
-          }
-        })
-        return Object.keys(unique).reduce((a, h) => {
-          a.push(files[unique[h]])
-          return a
-        },[])
-      },
       base64ToHex(str) {
         const raw = atob(str)
         let result = ''
@@ -112,85 +90,71 @@
               let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
               fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
             } else {
-              that.upload(btoa(spark.end(true)), fileN)
+              const hash = btoa(spark.end(true)) 
+              that.upload(hash, fileN)
+              const reader = new FileReader()
+              reader.addEventListener("load", function () {
+                // convert image file to base64 string
+                that.$emit("input", [...that.value, {preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
+              }, false)
+              reader.readAsDataURL(fileN)
             }
           }
           {
-            let start = currentChunk * chunkSize
-            let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
-            fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
+            let end = chunkSize >= fileN.size ? fileN.size : chunkSize
+            fileReader.readAsArrayBuffer(blobSlice.call(fileN, 0, end))
           }
         })
         evt.target.removeAttribute('value')
         evt.target.value = ""
       },
       upload(hash, fileN) {
-        let folder = this.folder || this.base64ToHex(hash)
-        let path = folder + "/" + fileN.name
-        let that = this
-        let meta = { ...that.meta}
-        let toUploadto = storage().ref().child(path)
-        let uid = that.uid || auth().currentUser.uid || "anyone"
+        const folder = this.folder || this.base64ToHex(hash)
+        const path = folder + "/" + fileN.name
+        let meta = { ...this.meta}
+        const toUploadto = storage().ref().child(path)
+        const uid = this.uid || auth().currentUser.uid || "anyone"
         meta[uid] = "UserID"
-        toUploadto.getDownloadURL().then(url => {
-          toUploadto.getMetadata().then(metadata => {
-            var add  = {
-              hash, url,
-              name: fileN.name,
-              ref: metadata.ref,
-              type: metadata.contentType,
-            }
-            if (metadata.contentType.indexOf("image") !== -1) {
-              add.image = true
-            }
-            setTimeout(() => {
-              that.$emit("newFile", that.addMeta(add))
-              that.$emit("input", that.removeDups([...that.files, that.addMeta(add)]))
-            }, 0)
-          }).catch(e => {
-            console.error(e)
-          })
-        }).catch(function (e) {
+        toUploadto.getDownloadURL().then(url => { // see if it up there
+          var add = {
+            hash, url,
+            name: fileN.name,
+            type: fileN.type,
+          }
+          this.$emit("newFile", add)
+          this.addMeta(add)
+          this.$emit("input", [...this.value, add])
+        }).catch(e => {
           console.info(e)
-          that.uploading += 1
-          toUploadto.put(fileN, {customMetadata:meta}).then(async function(snapshot) { //upload
-            console.log({snapshot})
+          this.uploading += 1
+          let that = this
+          toUploadto.put(fileN, {customMetadata:meta}).then(async snapshot => { //upload
             var add = {
               hash,
               metadata: snapshot.metadata,
               name: fileN.name,
-              ref: snapshot.ref,
               type: snapshot.metadata.contentType,
               url: await snapshot.ref.getDownloadURL(),
             }
-            if (snapshot.metadata.contentType.indexOf("image") !== -1) {
-              add.image = add.url
-            }
-            that.$emit("newFile", that.addMeta(add))
-            that.$emit("input", that.removeDups([...files, that.addMeta(add)]))
-            that.uploading -= 1
-            
+            this.addMeta(add)
+            this.$emit("newFile", add)
+            this.$emit("input", [...that.value, add])
+            this.uploading -= 1
           }).catch(function(e) {
             console.error(e)
-            that.uploading -= 1
+            this.uploading -= 1
           })
         })
       },
       addMeta(file) {
         let returnFile = Object.keys(file).reduce((a, prop) => {
-          if (typeof file[prop] === "string") {
+          if (typeof file[prop] === "string" || typeof file[prop] === "boolean") {
             a[prop] = file[prop]
           }
           return a
-        },{})
-        if (file.hash) {
+        }, {})
+        if (file.hash && fs) {
           fs.collection("files").doc(this.base64ToHex(file.hash)).set(returnFile, {merge: true})
-          this.files = this.files.map(f => {
-            if (f.hash === filePlus.md5Hash) {
-              return filePlus
-            }
-            return f
-          })
         }
         return returnFile
       },
