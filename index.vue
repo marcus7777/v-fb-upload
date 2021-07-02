@@ -5,18 +5,15 @@
 <template>
   <div v-if="uploading"> {{text}}... {{uploading}} </div>
   <form v-else class="file" :style="'overflow: hidden; width: '+width">
-    <input type="file" :accept="accept" name="files[]" :data-text="label" class="custom-file-input" multiple @change="handleFileSelect" />
+    <slot>
+      <label for="files[]" > {{label || "upload"}}</label>
+    </slot>
+    <input type="file" :accept="accept" name="files[]" class="custom-file-input" multiple @change="handleFileSelect" />
   </form>
 </template>
 <style>
   .custom-file-input::-webkit-file-upload-button {
     visibility: hidden;
-  }
-  .custom-file-input::before {
-    content: attr(data-text);
-    display: inline-block;
-    white-space: nowrap;
-    cursor: pointer;
   }
 </style>
 <script>
