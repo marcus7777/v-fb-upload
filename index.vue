@@ -4,17 +4,16 @@
 
 <template>
   <div v-if="uploading"> {{text}}... {{uploading}} </div>
-  <form v-else class="file" :style="'overflow: hidden; width: '+width">
-    <slot>
-      <label for="files[]" > {{label || "upload"}}</label>
-    </slot>
-    <input type="file" :accept="accept" name="files[]" class="custom-file-input" multiple @change="handleFileSelect" />
+  <form v-else class="file">
+    <label class="file-select">
+      <slot>
+        <div>{{label}}</div>
+      </slot>
+      <input ref="file" style="display: none" type="file" :accept="accept" name="files[]" class="custom-file-input" multiple @change="handleFileSelect" />
+    </label>
   </form>
 </template>
 <style>
-  .custom-file-input::-webkit-file-upload-button {
-    visibility: hidden;
-  }
 </style>
 <script>
   import {auth, fs, storage} from "@/db"
@@ -46,10 +45,6 @@
         default: "upload",
         type: String,
       },
-      width:{
-        default: "50px",
-        type: String,
-      },
     },
     data: () => ({
       uploading: 0,
@@ -61,6 +56,10 @@
       },
     },
     methods:{
+      selectFile(){
+        let fileInputElement = this.$refs.file
+        fileInputElement.click()
+      },
       base64ToHex(str) {
         const raw = atob(str)
         let result = ''
