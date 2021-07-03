@@ -1,7 +1,3 @@
-<!--
-  `<file-upload v-model="files" />` upload files to firebase
--->
-
 <template>
   <div v-if="uploading"> {{text}}... {{uploading}} </div>
   <form v-else class="file">
@@ -13,8 +9,6 @@
     </label>
   </form>
 </template>
-<style>
-</style>
 <script>
   import {auth, fs, storage} from "@/db"
   import SparkMD5 from "spark-md5"

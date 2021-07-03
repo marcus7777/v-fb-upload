@@ -2,6 +2,26 @@
 ## vue firebase upload
 Upload files to firebase storage
 built-in vue
+## use
+
+in template
+```
+  <fb-upload ref="upload" v-model="files" :meta="meta" :uid="user.uid" @uploading="updateUploading">
+    <v-btn @click="$refs.upload.selectFile()" >Upload helpful pictures or videos ...</v-btn> 
+  </fb-upload>
+```
+
+in script
+```
+  import fbUpload from "v-fb-upload"
+  
+  export default {
+    components: {
+      fbUpload,
+    },
+  }
+
+```
 
 features
 * local integrity check of updloaded files
