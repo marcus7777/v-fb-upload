@@ -23,10 +23,11 @@ in script
 
 ```
 
-features
-* local integrity check of updloaded files
-* does not include if already there
-* saves custom metadata about the uploaded file (can be used for access permissions)
+## Features
+
+* local integrity check of uploaded files
+* does not include in upload if already there
+* saves custom metadata about the uploaded file (can be used for access permissions (I do))
 * if the folder is not set uploads to a unique folder for each hash of a file
 * async upload all files
 * exposes how many files are still uploading
