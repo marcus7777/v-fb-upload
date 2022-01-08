@@ -130,13 +130,17 @@
               type: snapshot.metadata.contentType,
               url: await snapshot.ref.getDownloadURL(),
             }
-            this.addMeta(add)
-            this.$emit("newFile", add)
-            this.$emit("input", [...that.value, add])
-            this.uploading -= 1
+            that.addMeta(add)
+            that.$emit("newFile", add)
+            if (Array.isarray(that.value)) {
+              that.$emit("input", [...that.value, add])
+            } else {
+              that.$emit("input", [add])
+            }
+            that.uploading -= 1
           }).catch(function(e) {
             console.error(e)
-            this.uploading -= 1
+            that.uploading -= 1
           })
         })
       },
