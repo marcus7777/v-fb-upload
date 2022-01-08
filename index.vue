@@ -85,7 +85,7 @@
               const reader = new FileReader()
               reader.addEventListener("load", function () {
                 // convert image file to base64 string
-		if (Array.isarray(that.value)) {
+		if (Array.isArray(that.value)) {
                   that.$emit("input", [...that.value, {preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
                 } else {
                   that.$emit("input", [{preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
@@ -132,7 +132,7 @@
             }
             that.addMeta(add)
             that.$emit("newFile", add)
-            if (Array.isarray(that.value)) {
+            if (Array.isArray(that.value)) {
               that.$emit("input", [...that.value, add])
             } else {
               that.$emit("input", [add])
