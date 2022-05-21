@@ -1,6 +1,6 @@
 {
   "name": "v-fb-upload",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Upload files to firebase storage as a vue component",
   "main": "index.vue",
   "repository": "git@github.com:marcus7777/v-file-upload.git",
