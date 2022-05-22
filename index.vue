@@ -10,8 +10,8 @@
   </form>
 </template>
 <script>
-  import {auth, fs, storage} from "@/db"
-  import SparkMD5 from "spark-md5"
+  import { auth, fs, storage } from "@/db"
+  import { createMD5 } from "hash-wasm"
 
   export default {
     props:{
@@ -66,33 +66,55 @@
       handleFileSelect(evt) {
         let that = this
         Array.prototype.forEach.call(evt.target.files, function(fileN) {
-          var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
-          var chunkSize = 2097152
-          var chunks = Math.ceil(fileN.size / chunkSize)
-          var currentChunk = 0
-          var fileReader = new FileReader()
-          var spark = new SparkMD5.ArrayBuffer()
-          fileReader.onload = function (e) {
-            spark.append(e.target.result)
-            currentChunk += 1
-            if (currentChunk < chunks) {
-              let start = currentChunk * chunkSize
-              let end = start + chunkSize >= fileN.size ? fileN.size : start + chunkSize
-              fileReader.readAsArrayBuffer(blobSlice.call(fileN, start, end))
+          const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
+          const chunkSize = 64 * 1024 * 1024
+          const fileReader = new FileReader();
+          let hasher = null;
+
+          function hashChunk(chunk) {
+            return new Promise((resolve, reject) => {
+              fileReader.onload = async(e) => {
+                const view = new Uint8Array(e.target.result);
+                hasher.update(view);
+                resolve();
+              };
+
+              fileReader.readAsArrayBuffer(chunk);
+            });
+          }
+          const readFile = async(file) => {
+            if (hasher) {
+              hasher.init()
             } else {
-              const hash = btoa(spark.end(true)) 
-              that.upload(hash, fileN)
-              const reader = new FileReader()
-              reader.addEventListener("load", function () {
-                // convert image file to base64 string
-		if (Array.isArray(that.value)) {
-                  that.$emit("input", [...that.value, {preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
-                } else {
-                  that.$emit("input", [{preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
-		}
-              }, false)
-              reader.readAsDataURL(fileN)
+              hasher = await createMD5()
             }
+
+            const chunkNumber = Math.floor(file.size / chunkSize)
+
+            for (let i = 0; i <= chunkNumber; i++) {
+              const chunk = file.slice(
+                chunkSize * i,
+                Math.min(chunkSize * (i + 1), file.size)
+              )
+              await hashChunk(chunk)
+            }
+
+            const hash = hasher.digest()
+            return Promise.resolve(hash)
+          }
+          fileReader.onload = function (e) {
+            const hash = await readFile(fileN)
+            that.upload(hash, fileN)
+            const reader = new FileReader()
+            reader.addEventListener("load", function () {
+              // convert image file to base64 string
+	   	      if (Array.isArray(that.value)) {
+                that.$emit("input", [...that.value, {preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
+              } else {
+                that.$emit("input", [{preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
+	          }
+            }, false)
+            reader.readAsDataURL(fileN)
           }
           {
             let end = chunkSize >= fileN.size ? fileN.size : chunkSize
