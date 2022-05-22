@@ -103,18 +103,19 @@
             return Promise.resolve(hash)
           }
           fileReader.onload = function (e) {
-            const hash = await readFile(fileN)
-            that.upload(hash, fileN)
-            const reader = new FileReader()
-            reader.addEventListener("load", function () {
-              // convert image file to base64 string
-	   	      if (Array.isArray(that.value)) {
-                that.$emit("input", [...that.value, {preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
-              } else {
-                that.$emit("input", [{preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
-	          }
-            }, false)
-            reader.readAsDataURL(fileN)
+              readFile(fileN).then(hash => {
+                  that.upload(hash, fileN)
+                  const reader = new FileReader()
+                  reader.addEventListener("load", function () {
+                      // convert image file to base64 string
+                      if (Array.isArray(that.value)) {
+                          that.$emit("input", [...that.value, {preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
+                      } else {
+                          that.$emit("input", [{preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
+                      }
+                  }, false)
+                  reader.readAsDataURL(fileN)
+              })
           }
           {
             let end = chunkSize >= fileN.size ? fileN.size : chunkSize
