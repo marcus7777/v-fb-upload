@@ -9,8 +9,10 @@
     </label>
   </form>
 </template>
-<script>
-  import { auth, fs, storage } from "@/db"
+<script lang="ts">
+  import { fs, app as fbApp } from "@/db" // @/*": ["src/*"]
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
+  import { doc, setDoc } from "firebase/firestore"
   import { createMD5 } from "hash-wasm"
 
   export default {
@@ -129,10 +131,11 @@
         const folder = this.folder || this.base64ToHex(hash)
         const path = folder + "/" + fileN.name
         let meta = { ...this.meta}
-        const toUploadto = storage().ref().child(path)
-        const uid = this.uid || auth().currentUser.uid || "anyone"
+        let storage = getStorage(fbApp)
+        const toUploadto = ref(storage, path)
+        const uid = this.uid || "anyone"
         meta[uid] = "UserID"
-        toUploadto.getDownloadURL().then(url => { // see if it up there
+        getDownloadURL(toUploadto).then(url => { // see if it up there
           var add = {
             hash, url,
             name: fileN.name,
@@ -145,7 +148,7 @@
           console.info(e)
           this.uploading += 1
           let that = this
-          toUploadto.put(fileN, {customMetadata:meta}).then(async snapshot => { //upload
+          uploadBytes(fileN, {customMetadata:meta}).then(async snapshot => { //upload
             var add = {
               hash,
               metadata: snapshot.metadata,
@@ -175,7 +178,7 @@
           return a
         }, {})
         if (file.hash && fs) {
-          fs.collection("files").doc(this.base64ToHex(file.hash)).set(returnFile, {merge: true})
+          setDoc(fs, doc("files",this.base64ToHex(file.hash), returnFile, {merge: true})
         }
         return returnFile
       },

@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
+    "firebase": "^9.8.2",
     "hash-wasm": "^4.9.0"
   }
 }
