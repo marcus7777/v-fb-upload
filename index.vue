@@ -10,12 +10,13 @@
   </form>
 </template>
 <script lang="ts">
-  import { fs, app as fbApp } from "@/db" // @/*": ["src/*"]
+  import { fs, fbApp } from "@/db" // @/*": ["src/*"]
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
   import { doc, setDoc } from "firebase/firestore"
   import { createMD5 } from "hash-wasm"
 
   export default {
+    emit:["newFile", "input"],
     props:{
       value:{
         type: Array,
