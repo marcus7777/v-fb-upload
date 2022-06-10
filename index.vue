@@ -16,11 +16,8 @@ import { doc, setDoc } from "firebase/firestore"
 import { createMD5 } from "hash-wasm"
 
 export default {
-    emits: ["newFile", "input"],
+    emits: ["newFile", "preview", "uploading"],
     props: {
-        value: {
-            type: Array,
-        },
         meta: {
             default: function() {
                 return {}
@@ -111,11 +108,7 @@ export default {
                         const reader = new FileReader()
                         reader.addEventListener("load", function () {
                             // convert image file to base64 string
-                            if (Array.isArray(that.value)) {
-                                that.$emit("input", [...that.value, {preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
-                            } else {
-                                that.$emit("input", [{preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
-                            }
+                            that.$emit("preview", [{preview: true, hash, url:reader.result, name: fileN.name, type: fileN.type}])
                         }, false)
                         reader.readAsDataURL(fileN)
                     })
@@ -142,9 +135,7 @@ export default {
                     name: fileN.name,
                     type: fileN.type,
                 }
-                this.$emit("newFile", add)
-                this.addMeta(add)
-                this.$emit("input", [...this.value, add])
+                this.$emit("newFile", this.addMeta(add))
             }).catch(e => {
                 console.info(e)
                 this.uploading += 1
@@ -157,13 +148,7 @@ export default {
                         type: snapshot.metadata.contentType,
                         url: await getDownloadURL(snapshot.ref),
                     }
-                    that.addMeta(add)
-                    that.$emit("newFile", add)
-                    if (Array.isArray(that.value)) {
-                        that.$emit("input", [...that.value, add])
-                    } else {
-                        that.$emit("input", [add])
-                    }
+                    that.$emit("newFile", this.addMeta(add))
                     that.uploading -= 1
                 }).catch(function(e) {
                     console.error(e)
