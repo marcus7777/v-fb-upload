@@ -71,18 +71,18 @@
           const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
           const chunkSize = 64 * 1024 * 1024
           const fileReader = new FileReader();
-          let hasher = null;
+          let hasher = null
 
           function hashChunk(chunk) {
             return new Promise((resolve, reject) => {
               fileReader.onload = async(e) => {
-                const view = new Uint8Array(e.target.result);
-                hasher.update(view);
-                resolve();
-              };
+                const view = new Uint8Array(e.target.result)
+                hasher.update(view)
+                resolve(null)
+              }
 
-              fileReader.readAsArrayBuffer(chunk);
-            });
+              fileReader.readAsArrayBuffer(chunk)
+            })
           }
           const readFile = async(file) => {
             if (hasher) {
@@ -148,13 +148,13 @@
           console.info(e)
           this.uploading += 1
           let that = this
-          uploadBytes(fileN, {customMetadata:meta}).then(async snapshot => { //upload
+          uploadBytes(toUploadto, fileN, {customMetadata:meta}).then(async snapshot => { //upload
             var add = {
               hash,
               metadata: snapshot.metadata,
               name: fileN.name,
               type: snapshot.metadata.contentType,
-              url: await snapshot.ref.getDownloadURL(),
+              url: await getDownloadURL(snapshot.ref),
             }
             that.addMeta(add)
             that.$emit("newFile", add)
@@ -178,7 +178,7 @@
           return a
         }, {})
         if (file.hash && fs) {
-          setDoc(fs, doc("files",this.base64ToHex(file.hash), returnFile, {merge: true})
+          setDoc(doc(fs, "files",this.base64ToHex(file.hash)), returnFile, {merge: true})
         }
         return returnFile
       },
