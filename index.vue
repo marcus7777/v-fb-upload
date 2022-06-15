@@ -72,7 +72,7 @@ export default {
                 let hasher = null
 
                 function hashChunk(chunk) {
-                    return new Promise((resolve, reject) => {
+                    return new Promise((resolve) => {
                         fileReader.onload = async(e) => {
                             const view = new Uint8Array(e.target.result)
                             hasher.update(view)
@@ -122,7 +122,7 @@ export default {
             evt.target.value = ""
         },
         upload(hash, fileN) {
-            const folder = this.folder || this.base64ToHex(hash)
+            const folder = this.folder || hash
             const path = folder + "/" + fileN.name
             let meta = { ...this.meta}
             let storage = getStorage(fbApp)
